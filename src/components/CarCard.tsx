@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import StarRating from './StarRating';
+import { useSettings } from '@/contexts/SettingsContext';
 
 interface CarCardProps {
   car: {
@@ -18,9 +19,11 @@ interface CarCardProps {
 }
 
 const CarCard = ({ car }: CarCardProps) => {
+  const { formatPrice, direction } = useSettings();
+  
   return (
     <Link to={`/cars/${car.id}`}>
-      <Card className="car-rating-card overflow-hidden h-full">
+      <Card className="car-rating-card overflow-hidden h-full" dir={direction}>
         <div className="relative aspect-[16/9] overflow-hidden">
           <img 
             src={car.image} 
@@ -38,7 +41,7 @@ const CarCard = ({ car }: CarCardProps) => {
           </div>
           <div className="flex justify-between items-center mt-2">
             <span className="font-semibold text-carTheme-navy">
-              ${car.price.toLocaleString()}
+              {formatPrice(car.price)}
             </span>
             <span className="text-sm bg-carTheme-navy text-white px-2 py-1 rounded-md">
               View Details

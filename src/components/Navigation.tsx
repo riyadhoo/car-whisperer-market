@@ -11,12 +11,17 @@ import {
   Menu, 
   X
 } from "lucide-react";
+import LanguageSelector from './LanguageSelector';
+import { useSettings } from '@/contexts/SettingsContext';
+import { useTranslation } from '@/data/translations';
 
 const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { language, direction } = useSettings();
+  const { t } = useTranslation(language);
   
   return (
-    <nav className="bg-carTheme-navy text-white py-4 px-6 sticky top-0 z-50 shadow-md">
+    <nav className="bg-carTheme-navy text-white py-4 px-6 sticky top-0 z-50 shadow-md" dir={direction}>
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center space-x-2">
           <Car className="h-6 w-6 text-carTheme-red" />
@@ -26,16 +31,16 @@ const Navigation = () => {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
           <div className="relative w-64">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-carTheme-silver" />
+            <Search className={`absolute ${direction === 'rtl' ? 'right-2' : 'left-2'} top-2.5 h-4 w-4 text-carTheme-silver`} />
             <Input 
               type="search" 
-              placeholder="Search cars or parts..." 
-              className="pl-8 bg-white/10 border-carTheme-silver/30 text-white placeholder:text-carTheme-silver/70"
+              placeholder={t('search')}
+              className={`${direction === 'rtl' ? 'pr-8' : 'pl-8'} bg-white/10 border-carTheme-silver/30 text-white placeholder:text-carTheme-silver/70`}
             />
           </div>
-          <Link to="/" className="hover:text-carTheme-red transition-colors">Home</Link>
-          <Link to="/cars" className="hover:text-carTheme-red transition-colors">Cars</Link>
-          <Link to="/parts" className="hover:text-carTheme-red transition-colors">Parts</Link>
+          <Link to="/" className="hover:text-carTheme-red transition-colors">{t('home')}</Link>
+          <Link to="/cars" className="hover:text-carTheme-red transition-colors">{t('cars')}</Link>
+          <Link to="/parts" className="hover:text-carTheme-red transition-colors">{t('parts')}</Link>
           <Link to="/profile">
             <Button variant="ghost" size="icon" className="text-white hover:text-carTheme-red">
               <User className="h-5 w-5" />
@@ -46,6 +51,7 @@ const Navigation = () => {
               <ShoppingCart className="h-5 w-5" />
             </Button>
           </Link>
+          <LanguageSelector />
         </div>
         
         {/* Mobile menu button */}
@@ -64,11 +70,11 @@ const Navigation = () => {
         <div className="md:hidden bg-carTheme-navy border-t border-white/10 mt-4 py-4">
           <div className="container mx-auto space-y-4">
             <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-carTheme-silver" />
+              <Search className={`absolute ${direction === 'rtl' ? 'right-2' : 'left-2'} top-2.5 h-4 w-4 text-carTheme-silver`} />
               <Input 
                 type="search" 
-                placeholder="Search cars or parts..." 
-                className="pl-8 bg-white/10 border-carTheme-silver/30 text-white placeholder:text-carTheme-silver/70 w-full"
+                placeholder={t('search')}
+                className={`${direction === 'rtl' ? 'pr-8' : 'pl-8'} bg-white/10 border-carTheme-silver/30 text-white placeholder:text-carTheme-silver/70 w-full`}
               />
             </div>
             <div className="flex flex-col space-y-2">
@@ -77,21 +83,21 @@ const Navigation = () => {
                 className="px-4 py-2 hover:bg-white/10 rounded-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Home
+                {t('home')}
               </Link>
               <Link 
                 to="/cars" 
                 className="px-4 py-2 hover:bg-white/10 rounded-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Cars
+                {t('cars')}
               </Link>
               <Link 
                 to="/parts" 
                 className="px-4 py-2 hover:bg-white/10 rounded-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Parts
+                {t('parts')}
               </Link>
               <div className="flex space-x-4 px-4 py-2">
                 <Link 
@@ -100,7 +106,7 @@ const Navigation = () => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <User className="h-5 w-5" />
-                  <span>Profile</span>
+                  <span>{t('profile')}</span>
                 </Link>
                 <Link 
                   to="/cart" 
@@ -108,8 +114,11 @@ const Navigation = () => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  <span>Cart</span>
+                  <span>{t('cart')}</span>
                 </Link>
+                <div className="flex items-center">
+                  <LanguageSelector />
+                </div>
               </div>
             </div>
           </div>
