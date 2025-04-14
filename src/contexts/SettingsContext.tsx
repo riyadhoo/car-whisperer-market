@@ -51,7 +51,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   };
   
   // Text direction based on language
-  const direction = language === 'ar' ? 'rtl' : 'ltr';
+  const direction: 'ltr' | 'rtl' = language === 'ar' ? 'rtl' : 'ltr';
   
   const value = {
     language,
