@@ -1,4 +1,5 @@
 
+// Translation data for the application
 export const translations = {
   en: {
     // Navigation
@@ -38,6 +39,7 @@ export const translations = {
     priceHigh: 'Price: High to Low',
     newest: 'Newest First',
     noPartsMatch: 'No parts match your search criteria',
+    newPartsAdded: 'New parts recently added to our inventory!',
     
     // PartCard
     details: 'Details',
@@ -94,6 +96,7 @@ export const translations = {
     priceHigh: 'السعر: من الأعلى إلى الأدنى',
     newest: 'الأحدث أولاً',
     noPartsMatch: 'لا توجد قطع غيار تطابق معايير البحث الخاصة بك',
+    newPartsAdded: 'تمت إضافة قطع غيار جديدة مؤخرًا إلى مخزوننا!',
     
     // PartCard
     details: 'التفاصيل',
