@@ -58,6 +58,63 @@ export const translations = {
     copyright: 'All rights reserved.',
   },
   
+  fr: {
+    // Navigation
+    home: 'Accueil',
+    cars: 'Voitures',
+    parts: 'Pièces',
+    profile: 'Profil',
+    cart: 'Panier',
+    search: 'Rechercher voitures ou pièces...',
+    
+    // Parts page
+    partsMarketplace: 'Marché de Pièces Auto',
+    partsDescription: 'Trouvez des pièces neuves, d\'occasion et reconditionnées auprès de vendeurs et particuliers de confiance.',
+    filters: 'Filtres',
+    searchParts: 'Rechercher des pièces...',
+    category: 'Catégorie',
+    allCategories: 'Toutes les Catégories',
+    condition: 'État',
+    anyCondition: 'Tous les États',
+    priceRange: 'Fourchette de Prix',
+    sellerType: 'Type de Vendeur',
+    allSellers: 'Tous les Vendeurs',
+    shopsOnly: 'Boutiques Uniquement',
+    individualsOnly: 'Particuliers Uniquement',
+    inStockOnly: 'En Stock Uniquement',
+    resetFilters: 'Réinitialiser les Filtres',
+    shipping: 'Livraison & Services',
+    freeShipping: 'Livraison Gratuite',
+    onOrdersOver: 'Sur les commandes de plus de',
+    compatibilityCheck: 'Vérification de Compatibilité',
+    partsVerified: 'Pièces vérifiées pour s\'adapter à votre véhicule',
+    partFound: 'pièce trouvée',
+    partsFound: 'pièces trouvées',
+    sortBy: 'Trier par',
+    featured: 'En vedette',
+    priceLow: 'Prix: Croissant',
+    priceHigh: 'Prix: Décroissant',
+    newest: 'Plus Récent',
+    noPartsMatch: 'Aucune pièce ne correspond à vos critères de recherche',
+    newPartsAdded: 'Nouvelles pièces récemment ajoutées à notre inventaire!',
+    
+    // PartCard
+    details: 'Détails',
+    add: 'Ajouter',
+    fits: 'Compatible avec:',
+    
+    // Footer
+    quickLinks: 'Liens Rapides',
+    categories: 'Catégories',
+    contactUs: 'Contactez-nous',
+    sedans: 'Berlines',
+    suvs: 'SUVs',
+    trucks: 'Camions',
+    luxury: 'Luxe',
+    about: 'À Propos',
+    copyright: 'Tous droits réservés.',
+  },
+  
   ar: {
     // Navigation
     home: 'الرئيسية',
@@ -117,10 +174,10 @@ export const translations = {
 };
 
 // Hook to get translations
-export const useTranslation = (language: 'en' | 'ar') => {
+export const useTranslation = (language: 'en' | 'fr' | 'ar') => {
   return {
     t: (key: keyof typeof translations.en): string => {
-      // TypeScript doesn't know if the key exists in the ar translations, so we need to cast
+      // TypeScript doesn't know if the key exists in the ar or fr translations, so we need to cast
       return translations[language][key as keyof typeof translations[typeof language]] || key;
     }
   };

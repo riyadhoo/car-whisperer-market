@@ -2,7 +2,7 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 // Define the available languages and currencies
-export type Language = 'en' | 'ar';
+export type Language = 'en' | 'fr' | 'ar';
 export type Currency = 'USD' | 'DA';
 
 interface SettingsContextType {

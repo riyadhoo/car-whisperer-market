@@ -23,13 +23,20 @@ const LanguageSelector = () => {
       <DropdownMenuContent align="end">
         <div className="p-2">
           <h4 className="font-medium mb-2">Language</h4>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <Button 
               size="sm"
               variant={language === 'en' ? "default" : "outline"} 
               onClick={() => setLanguage('en')}
             >
               English
+            </Button>
+            <Button 
+              size="sm"
+              variant={language === 'fr' ? "default" : "outline"} 
+              onClick={() => setLanguage('fr')}
+            >
+              Français
             </Button>
             <Button 
               size="sm"
