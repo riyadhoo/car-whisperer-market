@@ -14,12 +14,12 @@ interface CarCardProps {
     image: string;
     rating: number;
     reviewCount: number;
-    price: number;
+    price?: number; // Make price optional
   };
 }
 
 const CarCard = ({ car }: CarCardProps) => {
-  const { formatPrice, direction } = useSettings();
+  const { direction } = useSettings();
   
   return (
     <Link to={`/cars/${car.id}`}>
@@ -34,15 +34,14 @@ const CarCard = ({ car }: CarCardProps) => {
         <CardContent className="p-4">
           <div className="mb-2">
             <h3 className="font-bold text-lg">{car.year} {car.make} {car.model}</h3>
-            <StarRating rating={car.rating} className="mt-1" />
-            <span className="text-sm text-muted-foreground ml-2">
-              ({car.reviewCount} reviews)
-            </span>
+            <div className="flex items-center mt-1">
+              <StarRating rating={car.rating} />
+              <span className="text-sm text-muted-foreground ml-2">
+                ({car.reviewCount} reviews)
+              </span>
+            </div>
           </div>
-          <div className="flex justify-between items-center mt-2">
-            <span className="font-semibold text-carTheme-navy">
-              {formatPrice(car.price)}
-            </span>
+          <div className="flex justify-end items-center mt-2">
             <span className="text-sm bg-carTheme-navy text-white px-2 py-1 rounded-md">
               View Details
             </span>
