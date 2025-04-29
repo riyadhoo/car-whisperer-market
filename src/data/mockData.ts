@@ -351,6 +351,54 @@ export const parts: Part[] = [
     description: "Passenger side mirror from a 2018 Ford F-150 XLT. Power adjustable with blind spot monitoring. Minor scratches but fully functional. Removed when upgrading to tow mirrors.",
     category: "Exterior",
     inStock: 1
+  },
+  {
+    id: "part-7",
+    name: "Vision Alloy Wheels (16-inch)",
+    image: "/lovable-uploads/582b3092-6ae7-430e-a7e8-05649df81216.png",
+    price: 129.99,
+    condition: "New",
+    seller: {
+      id: "seller-6",
+      type: "Shop",
+      name: "Wheel Specialists"
+    },
+    compatibility: ["Fiat 500 2017-2023", "Chevrolet Aveo 2016-2023", "Renault Clio 2018-2023"],
+    description: "Premium black alloy wheels with chrome accents. These durable wheels feature a unique design that combines style with performance. Perfect for upgrading your vehicle's appearance without sacrificing quality.",
+    category: "Wheels",
+    inStock: 8
+  },
+  {
+    id: "part-8",
+    name: "Starter Motor for Compact Cars",
+    image: "/lovable-uploads/d8738a95-6b14-4582-9735-8893a01a85e9.png",
+    price: 89.50,
+    condition: "New",
+    seller: {
+      id: "seller-1",
+      type: "Shop",
+      name: "AutoZone"
+    },
+    compatibility: ["Dacia Logan 2016-2023", "Fiat 500 2015-2022", "Lada Granta 2018-2023"],
+    description: "High-quality replacement starter motor for compact cars. Provides reliable starting in all weather conditions. Direct fit replacement for multiple small car models with no modifications required.",
+    category: "Electrical",
+    inStock: 6
+  },
+  {
+    id: "part-9",
+    name: "Carburetor Assembly",
+    image: "/lovable-uploads/f3431978-b2fa-4246-9bba-b4bdb80cfbff.png",
+    price: 165.75,
+    condition: "Refurbished",
+    seller: {
+      id: "seller-7",
+      type: "Shop",
+      name: "Classic Car Parts"
+    },
+    compatibility: ["Lada Granta 2015-2020", "Older Fiat models", "Classic Chevrolet models"],
+    description: "Professionally refurbished carburetor assembly for classic and older economy cars. Each unit is thoroughly cleaned, inspected, and calibrated to ensure proper fuel delivery and optimal engine performance.",
+    category: "Engine",
+    inStock: 3
   }
 ];
 

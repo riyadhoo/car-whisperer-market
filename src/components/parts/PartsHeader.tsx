@@ -14,6 +14,9 @@ const PartsHeader = () => {
         <p className="text-lg opacity-80">
           {t('partsDescription')}
         </p>
+        <p className="text-sm mt-3 opacity-70">
+          {t('newPartsAdded')}
+        </p>
       </div>
     </section>
   );
