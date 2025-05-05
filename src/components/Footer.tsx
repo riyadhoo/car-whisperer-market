@@ -9,13 +9,12 @@ const Footer = () => {
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <div className="flex items-center space-x-2 mb-6">
+            <div className="mb-6">
               <img 
-                src="/lovable-uploads/a4146a92-9cd7-4905-b410-b8ecd19f965b.png" 
+                src="/lovable-uploads/dee0ea9f-2929-4373-9e12-da53bfe9e18f.png" 
                 alt="TorqueUp Logo" 
-                className="h-8 w-auto"
+                className="h-12 w-auto"
               />
-              <span className="text-xl font-bold">TorqueUp</span>
             </div>
             <p className="text-carTheme-silver">
               Helping car enthusiasts and newcomers find their perfect vehicle and parts since 2025.
