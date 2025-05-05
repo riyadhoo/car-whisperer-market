@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
-  Car, 
   Search, 
   ShoppingCart,
   User,
@@ -24,8 +23,12 @@ const Navigation = () => {
     <nav className="bg-carTheme-navy text-white py-4 px-6 sticky top-0 z-50 shadow-md" dir={direction}>
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center space-x-2">
-          <Car className="h-6 w-6 text-carTheme-red" />
-          <span className="text-xl font-bold">CarWhisperer</span>
+          <img 
+            src="/lovable-uploads/a4146a92-9cd7-4905-b410-b8ecd19f965b.png" 
+            alt="TorqueUp Logo" 
+            className="h-8 w-auto"
+          />
+          <span className="text-xl font-bold">TorqueUp</span>
         </Link>
         
         {/* Desktop Navigation */}
