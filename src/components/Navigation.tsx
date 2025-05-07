@@ -22,11 +22,11 @@ const Navigation = () => {
   return (
     <nav className="bg-carTheme-navy text-white py-4 px-6 sticky top-0 z-50 shadow-md" dir={direction}>
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center m-0 p-0">
           <img 
             src="/lovable-uploads/dee0ea9f-2929-4373-9e12-da53bfe9e18f.png" 
             alt="TorqueUp Logo" 
-            className="h-20 w-auto"
+            className="h-20 w-auto m-0"
           />
         </Link>
         
