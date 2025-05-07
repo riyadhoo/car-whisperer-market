@@ -26,7 +26,7 @@ const Navigation = () => {
           <img 
             src="/lovable-uploads/dee0ea9f-2929-4373-9e12-da53bfe9e18f.png" 
             alt="TorqueUp Logo" 
-            className="h-15 w-15"
+            className="h-10 w-auto"
           />
         </Link>
         
