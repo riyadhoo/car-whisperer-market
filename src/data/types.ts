@@ -37,6 +37,21 @@ export interface CarComment extends Comment {
   carId: string;
 }
 
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  type: 'Shop' | 'Individual';
+  bio?: string;
+  location?: string;
+  website?: string;
+  phone?: string;
+  joinDate: string;
+  ratingsGiven: number;
+  partsListed: number;
+}
+
 export interface Part {
   id: string;
   name: string;
@@ -52,4 +67,7 @@ export interface Part {
   description: string;
   category: string;
   inStock: number;
+  createdAt?: string;
+  updatedAt?: string;
+  ownerId?: string;
 }

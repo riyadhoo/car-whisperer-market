@@ -8,7 +8,8 @@ import {
   ShoppingCart,
   User,
   Menu, 
-  X
+  X,
+  PlusCircle 
 } from "lucide-react";
 import LanguageSelector from './LanguageSelector';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -43,6 +44,10 @@ const Navigation = () => {
           <Link to="/" className="hover:text-carTheme-red transition-colors">{t('home')}</Link>
           <Link to="/cars" className="hover:text-carTheme-red transition-colors">{t('cars')}</Link>
           <Link to="/parts" className="hover:text-carTheme-red transition-colors">{t('parts')}</Link>
+          <Link to="/sell-parts" className="hover:text-carTheme-red transition-colors flex items-center">
+            <PlusCircle className="h-4 w-4 mr-1" />
+            {t('sellParts')}
+          </Link>
           <Link to="/profile">
             <Button variant="ghost" size="icon" className="text-white hover:text-carTheme-red">
               <User className="h-5 w-5" />
@@ -100,6 +105,14 @@ const Navigation = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {t('parts')}
+              </Link>
+              <Link 
+                to="/sell-parts" 
+                className="px-4 py-2 hover:bg-white/10 rounded-md flex items-center"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                {t('sellParts')}
               </Link>
               <div className="flex space-x-4 px-4 py-2">
                 <Link 

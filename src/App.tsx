@@ -9,6 +9,9 @@ import Cars from "./pages/Cars";
 import CarDetails from "./pages/CarDetails";
 import Parts from "./pages/Parts";
 import PartDetails from "./pages/PartDetails";
+import Profile from "./pages/Profile";
+import CreateProfile from "./pages/CreateProfile";
+import SellParts from "./pages/SellParts";
 import NotFound from "./pages/NotFound";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SettingsProvider from "./contexts/SettingsContext";
@@ -29,6 +32,10 @@ const App = () => (
               <Route path="/cars/:id" element={<CarDetails />} />
               <Route path="/parts" element={<Parts />} />
               <Route path="/parts/:id" element={<PartDetails />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:id" element={<Profile />} />
+              <Route path="/create-profile" element={<CreateProfile />} />
+              <Route path="/sell-parts" element={<SellParts />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
