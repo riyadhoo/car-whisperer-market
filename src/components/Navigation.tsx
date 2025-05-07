@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,7 @@ const Navigation = () => {
           <img 
             src="/lovable-uploads/dee0ea9f-2929-4373-9e12-da53bfe9e18f.png" 
             alt="TorqueUp Logo" 
-            className="h-9.5 w-auto"
+            className="h-10 w-auto"
           />
         </Link>
         
