@@ -24,7 +24,9 @@ import {
 } from '@/components/ui/select';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { UserType } from '@/data/types';
+
+// Define the user type here instead of importing from types.ts
+type UserTypeEnum = 'Shop' | 'Individual';
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -64,14 +66,18 @@ const Signup = () => {
     setPasswordError('');
     
     try {
-      // Password is now handled separately from the form data
+      // Map the form's userType to the expected type in the AuthContext
+      const userType = data.userType === 'shop' ? 'Shop' : 'Individual';
+      
+      // Construct the user data object with the correct type
       await signup({
         email: data.email,
         name: data.name,
-        userType: data.userType as UserType,
+        type: userType as UserTypeEnum,
         shopName: data.shopName,
-        // Password is passed separately
-      }, password);
+        password // Include password in the object instead of as a separate parameter
+      });
+      
       navigate('/');
     } catch (error) {
       console.error('Signup error:', error);
