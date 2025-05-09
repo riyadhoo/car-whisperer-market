@@ -20,7 +20,7 @@ const Navigation = () => {
               <img 
                 src="/lovable-uploads/69914926-946e-47e7-b0e6-fe2b91025fc1.png" 
                 alt="Torque Up" 
-                className="h-16 w-auto"
+                className="h-18 w-auto"
               />
             </div>
           </Link>
