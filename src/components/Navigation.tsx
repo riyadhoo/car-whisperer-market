@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import LanguageSelector from './LanguageSelector';
 import ThemeToggle from './ThemeToggle';
 import AuthNav from './AuthNav';
@@ -47,20 +48,33 @@ const Navigation = () => {
       
       {/* Mobile Menu */}
       {showMobileMenu && (
-        <div className="md:hidden fixed top-0 left-0 w-full h-full bg-white z-50 p-6">
+        <div className="md:hidden fixed top-0 left-0 w-full h-full bg-white dark:bg-gray-900 z-50 p-6">
           <div className="flex justify-end mb-8">
             <Button variant="ghost" size="icon" onClick={() => setShowMobileMenu(false)}>
-              Close
+              <X className="h-5 w-5" />
+              <span className="sr-only">Close</span>
             </Button>
           </div>
           <div className="flex flex-col space-y-4">
-            <Link to="/" className="block text-lg font-medium hover:text-carTheme-red transition-colors">
+            <Link 
+              to="/" 
+              className="block text-lg font-medium hover:text-carTheme-red transition-colors"
+              onClick={() => setShowMobileMenu(false)}
+            >
               Home
             </Link>
-            <Link to="/cars" className="block text-lg font-medium hover:text-carTheme-red transition-colors">
+            <Link 
+              to="/cars" 
+              className="block text-lg font-medium hover:text-carTheme-red transition-colors"
+              onClick={() => setShowMobileMenu(false)}
+            >
               Cars
             </Link>
-            <Link to="/parts" className="block text-lg font-medium hover:text-carTheme-red transition-colors">
+            <Link 
+              to="/parts" 
+              className="block text-lg font-medium hover:text-carTheme-red transition-colors"
+              onClick={() => setShowMobileMenu(false)}
+            >
               Parts
             </Link>
           </div>
