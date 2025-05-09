@@ -23,6 +23,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 interface RatingFormProps {
   carId: string;
@@ -46,6 +48,7 @@ const RatingForm = ({ carId, carName, onRatingSubmitted }: RatingFormProps) => {
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { isAuthenticated, currentUser } = useAuth();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -56,11 +59,20 @@ const RatingForm = ({ carId, carName, onRatingSubmitted }: RatingFormProps) => {
   });
 
   const onSubmit = (data: FormValues) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to leave a rating.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     // Simulate API call
     setTimeout(() => {
-      console.log({ carId, ...data });
+      console.log({ carId, userId: currentUser?.id, ...data });
       setIsSubmitting(false);
       
       toast({
@@ -83,6 +95,28 @@ const RatingForm = ({ carId, carName, onRatingSubmitted }: RatingFormProps) => {
     setSelectedRating(rating);
     form.setValue('rating', rating);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Rate this Car</CardTitle>
+          <CardDescription>Share your experience with the {carName}</CardDescription>
+        </CardHeader>
+        <CardContent className="text-center py-6">
+          <p className="mb-4">You need to be logged in to leave a rating.</p>
+          <div className="flex justify-center space-x-4">
+            <Link to="/login">
+              <Button variant="outline">Log In</Button>
+            </Link>
+            <Link to="/signup">
+              <Button className="bg-carTheme-red hover:bg-carTheme-red/80">Sign Up</Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

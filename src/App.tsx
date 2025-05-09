@@ -12,9 +12,12 @@ import PartDetails from "./pages/PartDetails";
 import Profile from "./pages/Profile";
 import CreateProfile from "./pages/CreateProfile";
 import SellParts from "./pages/SellParts";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SettingsProvider from "./contexts/SettingsContext";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -22,25 +25,29 @@ const App = () => (
   <SettingsProvider>
     <ThemeProvider attribute="class" defaultTheme="light">
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/cars" element={<Cars />} />
-              <Route path="/cars/:id" element={<CarDetails />} />
-              <Route path="/parts" element={<Parts />} />
-              <Route path="/parts/:id" element={<PartDetails />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/:id" element={<Profile />} />
-              <Route path="/create-profile" element={<CreateProfile />} />
-              <Route path="/sell-parts" element={<SellParts />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </TooltipProvider>
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/cars" element={<Cars />} />
+                <Route path="/cars/:id" element={<CarDetails />} />
+                <Route path="/parts" element={<Parts />} />
+                <Route path="/parts/:id" element={<PartDetails />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/:id" element={<Profile />} />
+                <Route path="/create-profile" element={<CreateProfile />} />
+                <Route path="/sell-parts" element={<SellParts />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </TooltipProvider>
+          </BrowserRouter>
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   </SettingsProvider>

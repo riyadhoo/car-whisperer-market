@@ -7,6 +7,8 @@ import { ShoppingCart, Store, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useTranslation } from '@/data/translations';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface PartCardProps {
   part: {
@@ -27,6 +29,8 @@ interface PartCardProps {
 const PartCard = ({ part }: PartCardProps) => {
   const { formatPrice, language, direction } = useSettings();
   const { t } = useTranslation(language);
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
   
   const getConditionColor = (condition: string) => {
     switch (condition) {
@@ -35,6 +39,23 @@ const PartCard = ({ part }: PartCardProps) => {
       case 'Refurbished': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+  
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to add items to your cart.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Add to cart functionality here
+    toast({
+      title: "Added to Cart",
+      description: `${part.name} has been added to your cart.`
+    });
   };
 
   return (
@@ -58,7 +79,9 @@ const PartCard = ({ part }: PartCardProps) => {
           ) : (
             <User className="h-4 w-4 text-carTheme-navy mr-1" />
           )}
-          <span className="text-sm text-muted-foreground">{part.seller.name}</span>
+          <Link to={`/profile/${part.seller.id}`} className="text-sm text-muted-foreground hover:text-carTheme-navy hover:underline">
+            {part.seller.name}
+          </Link>
         </div>
         
         <div className="mt-2 text-sm text-muted-foreground">
@@ -77,7 +100,11 @@ const PartCard = ({ part }: PartCardProps) => {
                 {t('details')}
               </Button>
             </Link>
-            <Button className="bg-carTheme-red hover:bg-carTheme-red/80" size="sm">
+            <Button 
+              className="bg-carTheme-red hover:bg-carTheme-red/80" 
+              size="sm"
+              onClick={handleAddToCart}
+            >
               <ShoppingCart className="h-4 w-4 mr-1" />
               {t('add')}
             </Button>

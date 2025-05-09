@@ -1,0 +1,21 @@
+
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+
+interface AuthGuardProps {
+  children: React.ReactNode;
+  redirectTo?: string;
+}
+
+const AuthGuard = ({ children, redirectTo = '/login' }: AuthGuardProps) => {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  return <>{children}</>;
+};
+
+export default AuthGuard;
