@@ -1,199 +1,178 @@
-
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '../contexts/AuthContext';
-import { Button } from '@/components/ui/button';
+import { Link, useNavigate } from 'react-router-dom';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
+  FormControl,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+} from "@/components/ui/form";
+import { toast } from "@/components/ui/use-toast";
+import { useAuth } from '@/contexts/AuthContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// Define the user type here instead of importing from types.ts
-type UserTypeEnum = 'Shop' | 'Individual';
-
-const signupSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(2),
-  userType: z.enum(['individual', 'shop']),
-  shopName: z.string().optional(),
-  // Remove password from the schema as it's handled separately
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  password: z.string().min(6, {
+    message: "Password must be at least 6 characters.",
+  }),
+  userType: z.enum(["buyer", "seller"]),
 });
 
+enum UserTypeEnum {
+  BUYER = "buyer",
+  SELLER = "seller",
+}
+
 const Signup = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { signup } = useAuth();
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   
-  const form = useForm<z.infer<typeof signupSchema>>({
-    resolver: zodResolver(signupSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      name: '',
-      userType: 'individual',
-      shopName: '',
+      name: "",
+      email: "",
+      password: "",
+      userType: UserTypeEnum.BUYER,
     },
   });
-  
-  const onSubmit = async (data: z.infer<typeof signupSchema>) => {
-    if (!password) {
-      setPasswordError('Password is required');
-      return;
-    }
-    
-    if (password.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
-      return;
-    }
-    
-    setPasswordError('');
+
+  // When you submit, we need to transform the data based on the selected user type
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
     
     try {
-      // Map the form's userType to the expected type in the AuthContext
-      const userType = data.userType === 'shop' ? 'Shop' : 'Individual';
+      const { userType, password, ...userData } = values;
       
-      // Construct the user data object with the correct type
-      // Only include shopName if the user is a shop
-      await signup({
-        email: data.email,
-        name: data.name,
-        type: userType as UserTypeEnum,
-        ...(data.userType === 'shop' && data.shopName ? { shopName: data.shopName } : {}),
-        password // Include password in the object
+      // Different user types might need different data structures
+      if (userType === UserTypeEnum.SELLER) {
+        await signup({
+          ...userData,
+          isDealer: true,
+          // password is handled separately by Auth service
+        }, password);
+      } else {
+        await signup({
+          ...userData,
+          isDealer: false,
+          // password is handled separately by Auth service
+        }, password);
+      }
+
+      toast({
+        title: "Account created successfully!",
+        description: "You can now log in.",
       });
       
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       console.error('Signup error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error creating account",
+        description: "Please try again later.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  const watchUserType = form.watch('userType');
-  
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navigation />
-      
-      <main className="flex-grow container mx-auto px-6 py-8">
-        <div className="max-w-md mx-auto">
-          <h1 className="text-3xl font-bold mb-6">Create an Account</h1>
-          
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="email" placeholder="your@email.com" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="John Doe" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div>
-                <FormLabel htmlFor="password">Password</FormLabel>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  placeholder="••••••••" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
-              </div>
-              
-              <FormField
-                control={form.control}
-                name="userType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select account type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="individual">Individual</SelectItem>
-                        <SelectItem value="shop">Auto Shop</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {watchUserType === 'shop' && (
-                <FormField
-                  control={form.control}
-                  name="shopName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Shop Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Your Auto Shop" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+    <div className="container mx-auto flex items-center justify-center h-screen">
+      <div className="w-full max-w-md border rounded-lg p-8 shadow-md">
+        <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-              
-              <Button type="submit" className="w-full">Sign Up</Button>
-            </form>
-          </Form>
-          
-          <div className="mt-4 text-center">
-            <p>
-              Already have an account?{" "}
-              <Link to="/login" className="text-blue-500 hover:underline">
-                Log In
-              </Link>
-            </p>
-          </div>
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="johndoe@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="userType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Account Type</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select account type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value={UserTypeEnum.BUYER}>Buyer</SelectItem>
+                      <SelectItem value={UserTypeEnum.SELLER}>Seller</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button disabled={isLoading} className="w-full bg-carTheme-red hover:bg-carTheme-red/80" type="submit">
+              {isLoading ? (
+                <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : null}
+              Sign Up
+            </Button>
+          </form>
+        </Form>
+        <div className="mt-4 text-sm text-center">
+          Already have an account? <Link to="/login" className="text-carTheme-red hover:underline">Log In</Link>
         </div>
-      </main>
-      
-      <Footer />
+      </div>
     </div>
   );
 };
