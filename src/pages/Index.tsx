@@ -33,7 +33,7 @@ const Index = () => {
                     </Button>
                   </Link>
                   <Link to="/parts">
-                    <Button size="lg" variant="outline" className="border-white w-full sm:w-auto text-gray-50 bg-slate-950 hover:bg-slate-800">
+                    <Button size="lg" variant="outline" className="border-white w-full sm:w-auto text-gray-50 bg-carTheme-navy rounded-sm">
                       Shop Car Parts
                     </Button>
                   </Link>
@@ -52,9 +52,7 @@ const Index = () => {
           <div className="container mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Car Enthusiasts Trust Us</h2>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                CarWhisperer provides honest reviews, ratings, and a marketplace for all your automotive needs.
-              </p>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">TorqueUp provides honest reviews, ratings, and a marketplace for all your automotive needs.</p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-8">
@@ -141,7 +139,7 @@ const Index = () => {
                   </Button>
                 </Link>
                 <Link to="/parts">
-                  <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10 w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="border-white w-full sm:w-auto text-slate-50 bg-carTheme-navy">
                     <ShoppingBag className="mr-2 h-5 w-5" />
                     Shop Parts
                   </Button>

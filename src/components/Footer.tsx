@@ -1,19 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="bg-carTheme-navy text-white pt-12 pb-6">
+  return <footer className="bg-carTheme-navy text-white pt-12 pb-6">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="mb-6">
-              <img 
-                src="/lovable-uploads/dee0ea9f-2929-4373-9e12-da53bfe9e18f.png" 
-                alt="TorqueUp Logo" 
-                className="h-11.3 w-auto"
-              />
+              <img src="/lovable-uploads/dee0ea9f-2929-4373-9e12-da53bfe9e18f.png" alt="TorqueUp Logo" className="h-11.3 w-auto" />
             </div>
             <p className="text-carTheme-silver">
               Helping car enthusiasts and newcomers find their perfect vehicle and parts since 2025.
@@ -77,7 +71,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-carTheme-red" />
-                <span className="text-carTheme-silver">1234 Car Street, Auto City</span>
+                <span className="text-carTheme-silver">1234 boumerdes,algeria</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-carTheme-red" />
@@ -95,8 +89,6 @@ const Footer = () => {
           <p>&copy; {new Date().getFullYear()} TorqueUp. All rights reserved.</p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
