@@ -70,12 +70,13 @@ const Signup = () => {
       const userType = data.userType === 'shop' ? 'Shop' : 'Individual';
       
       // Construct the user data object with the correct type
+      // Only include shopName if the user is a shop
       await signup({
         email: data.email,
         name: data.name,
         type: userType as UserTypeEnum,
-        shopName: data.shopName,
-        password // Include password in the object instead of as a separate parameter
+        ...(data.userType === 'shop' && data.shopName ? { shopName: data.shopName } : {}),
+        password // Include password in the object
       });
       
       navigate('/');
