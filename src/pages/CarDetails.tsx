@@ -5,7 +5,8 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import StarRating from '@/components/StarRating';
 import CommentSection from '@/components/CommentSection';
-import { cars, getCommentsForCar, Comment } from '@/data/mockData';
+import { cars, getCommentsForCar } from '@/data/mockData';
+import { CarComment } from '@/data/types';
 import { 
   CalendarDays,
   Car as CarIcon, 
@@ -21,7 +22,7 @@ import { toast } from '@/hooks/use-toast';
 const CarDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [car, setCar] = useState(cars.find(c => c.id === id));
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<CarComment[]>([]);
   
   useEffect(() => {
     if (id) {
@@ -38,8 +39,9 @@ const CarDetails = () => {
   const handleAddComment = (rating: number, content: string) => {
     if (!car) return;
     
-    const newComment: Comment = {
+    const newComment: CarComment = {
       id: `comment-${Date.now()}`,
+      carId: car.id,
       user: {
         name: "You", // In a real app, this would be the logged-in user
       },
