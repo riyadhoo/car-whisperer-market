@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -8,17 +7,11 @@ import { Car, ShoppingBag, Star, Users } from 'lucide-react';
 import CarCard from '@/components/CarCard';
 import PartCard from '@/components/PartCard';
 import { cars, parts } from '@/data/mockData';
-
 const Index = () => {
   // Show only top-rated cars and featured parts
-  const featuredCars = [...cars]
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0, 3);
-  
+  const featuredCars = [...cars].sort((a, b) => b.rating - a.rating).slice(0, 3);
   const featuredParts = parts.slice(0, 3);
-
-  return (
-    <div className="flex flex-col min-h-screen">
+  return <div className="flex flex-col min-h-screen">
       <Navigation />
       
       <main className="flex-grow">
@@ -40,7 +33,7 @@ const Index = () => {
                     </Button>
                   </Link>
                   <Link to="/parts">
-                    <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10 w-full sm:w-auto">
+                    <Button size="lg" variant="outline" className="border-white w-full sm:w-auto text-gray-50 bg-slate-950 hover:bg-slate-800">
                       Shop Car Parts
                     </Button>
                   </Link>
@@ -48,11 +41,7 @@ const Index = () => {
               </div>
               <div className="hidden md:block relative">
                 <div className="bg-carTheme-red rounded-full h-72 w-72 absolute -top-10 -right-10 opacity-30"></div>
-                <img 
-                  src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&q=80" 
-                  alt="Featured Car"
-                  className="rounded-lg relative z-10 shadow-xl"
-                />
+                <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&q=80" alt="Featured Car" className="rounded-lg relative z-10 shadow-xl" />
               </div>
             </div>
           </div>
@@ -114,9 +103,7 @@ const Index = () => {
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredCars.map(car => (
-                <CarCard key={car.id} car={car} />
-              ))}
+              {featuredCars.map(car => <CarCard key={car.id} car={car} />)}
             </div>
           </div>
         </section>
@@ -133,9 +120,7 @@ const Index = () => {
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredParts.map(part => (
-                <PartCard key={part.id} part={part} />
-              ))}
+              {featuredParts.map(part => <PartCard key={part.id} part={part} />)}
             </div>
           </div>
         </section>
@@ -168,8 +153,6 @@ const Index = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
