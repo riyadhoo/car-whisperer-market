@@ -16,7 +16,7 @@ const Navigation = () => {
         <nav className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
             {/* Logo */}
-            <div className="text-carTheme-navy font-bold text-xl">CarWhisperer</div>
+            <div className="text-carTheme-navy font-bold text-xl">Torque Up</div>
           </Link>
           
           {/* Main Navigation */}
