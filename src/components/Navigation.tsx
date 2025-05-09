@@ -15,12 +15,12 @@ const Navigation = () => {
       <div className="container mx-auto px-6">
         <nav className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
-            {/* Logo */}
+            {/* Logo - Adjusted to match navbar height */}
             <div className="flex items-center">
               <img 
-                src="/public/lovable-uploads/69914926-946e-47e7-b0e6-fe2b91025fc1.png" 
+                src="/lovable-uploads/69914926-946e-47e7-b0e6-fe2b91025fc1.png" 
                 alt="Torque Up" 
-                className="w-10"
+                className="h-16 w-auto"
               />
             </div>
           </Link>
