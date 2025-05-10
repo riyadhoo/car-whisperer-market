@@ -9,7 +9,216 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      cars: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: string
+          image: string | null
+          make: string
+          model: string
+          price: number | null
+          rating: number | null
+          review_count: number | null
+          specs: Json | null
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          image?: string | null
+          make: string
+          model: string
+          price?: number | null
+          rating?: number | null
+          review_count?: number | null
+          specs?: Json | null
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          image?: string | null
+          make?: string
+          model?: string
+          price?: number | null
+          rating?: number | null
+          review_count?: number | null
+          specs?: Json | null
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
+      comments: {
+        Row: {
+          car_id: string | null
+          content: string
+          created_at: string | null
+          dislikes: number | null
+          id: string
+          likes: number | null
+          part_id: string | null
+          rating: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          car_id?: string | null
+          content: string
+          created_at?: string | null
+          dislikes?: number | null
+          id?: string
+          likes?: number | null
+          part_id?: string | null
+          rating: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          car_id?: string | null
+          content?: string
+          created_at?: string | null
+          dislikes?: number | null
+          id?: string
+          likes?: number | null
+          part_id?: string | null
+          rating?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_part_id_fkey"
+            columns: ["part_id"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parts: {
+        Row: {
+          category: string | null
+          compatibility: Json | null
+          condition: string
+          created_at: string | null
+          description: string | null
+          id: string
+          image: string | null
+          in_stock: number | null
+          name: string
+          owner_id: string
+          price: number
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          compatibility?: Json | null
+          condition: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          in_stock?: number | null
+          name: string
+          owner_id: string
+          price: number
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          compatibility?: Json | null
+          condition?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          in_stock?: number | null
+          name?: string
+          owner_id?: string
+          price?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parts_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          email: string
+          id: string
+          is_dealer: boolean | null
+          join_date: string | null
+          location: string | null
+          name: string
+          parts_listed: number | null
+          phone: string | null
+          ratings_given: number | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          email: string
+          id: string
+          is_dealer?: boolean | null
+          join_date?: string | null
+          location?: string | null
+          name: string
+          parts_listed?: number | null
+          phone?: string | null
+          ratings_given?: number | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          email?: string
+          id?: string
+          is_dealer?: boolean | null
+          join_date?: string | null
+          location?: string | null
+          name?: string
+          parts_listed?: number | null
+          phone?: string | null
+          ratings_given?: number | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SettingsProvider from "./contexts/SettingsContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import AuthGuard from "./components/AuthGuard";
 
 const queryClient = new QueryClient();
 
@@ -36,10 +37,18 @@ const App = () => (
                 <Route path="/cars/:id" element={<CarDetails />} />
                 <Route path="/parts" element={<Parts />} />
                 <Route path="/parts/:id" element={<PartDetails />} />
-                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile" element={
+                  <AuthGuard>
+                    <Profile />
+                  </AuthGuard>
+                } />
                 <Route path="/profile/:id" element={<Profile />} />
                 <Route path="/create-profile" element={<CreateProfile />} />
-                <Route path="/sell-parts" element={<SellParts />} />
+                <Route path="/sell-parts" element={
+                  <AuthGuard>
+                    <SellParts />
+                  </AuthGuard>
+                } />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

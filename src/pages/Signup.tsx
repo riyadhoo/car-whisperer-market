@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +19,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -57,21 +59,22 @@ const Signup = () => {
     setIsLoading(true);
     
     try {
-      const { userType, password, ...userData } = values;
+      const { email, password, name, userType } = values;
       
-      // Different user types might need different data structures
-      if (userType === UserTypeEnum.SELLER) {
-        await signup({
-          ...userData,
-          isDealer: true,
-          // password is handled separately by Auth service
-        }, password);
-      } else {
-        await signup({
-          ...userData,
-          isDealer: false,
-          // password is handled separately by Auth service
-        }, password);
+      // Sign up with Supabase auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            is_dealer: userType === UserTypeEnum.SELLER
+          }
+        }
+      });
+      
+      if (error) {
+        throw error;
       }
 
       toast({
@@ -80,12 +83,12 @@ const Signup = () => {
       });
       
       navigate('/login');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signup error:', error);
       toast({
         variant: "destructive",
         title: "Error creating account",
-        description: "Please try again later.",
+        description: error.message || "Please try again later.",
       });
     } finally {
       setIsLoading(false);
