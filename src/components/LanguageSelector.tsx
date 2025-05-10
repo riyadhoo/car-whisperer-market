@@ -1,22 +1,18 @@
-
 import React from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Button } from '@/components/ui/button';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger, 
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Globe } from 'lucide-react';
-
 const LanguageSelector = () => {
-  const { language, setLanguage, currency, setCurrency } = useSettings();
-
-  return (
-    <DropdownMenu>
+  const {
+    language,
+    setLanguage,
+    currency,
+    setCurrency
+  } = useSettings();
+  return <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-white hover:text-carTheme-red">
+        <Button variant="ghost" size="icon" className="text-gray-950">
           <Globe className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
@@ -24,25 +20,13 @@ const LanguageSelector = () => {
         <div className="p-2">
           <h4 className="font-medium mb-2">Language</h4>
           <div className="flex flex-wrap gap-2">
-            <Button 
-              size="sm"
-              variant={language === 'en' ? "default" : "outline"} 
-              onClick={() => setLanguage('en')}
-            >
+            <Button size="sm" variant={language === 'en' ? "default" : "outline"} onClick={() => setLanguage('en')}>
               English
             </Button>
-            <Button 
-              size="sm"
-              variant={language === 'fr' ? "default" : "outline"} 
-              onClick={() => setLanguage('fr')}
-            >
+            <Button size="sm" variant={language === 'fr' ? "default" : "outline"} onClick={() => setLanguage('fr')}>
               Français
             </Button>
-            <Button 
-              size="sm"
-              variant={language === 'ar' ? "default" : "outline"} 
-              onClick={() => setLanguage('ar')}
-            >
+            <Button size="sm" variant={language === 'ar' ? "default" : "outline"} onClick={() => setLanguage('ar')}>
               العربية
             </Button>
           </div>
@@ -50,25 +34,15 @@ const LanguageSelector = () => {
         <div className="p-2 border-t">
           <h4 className="font-medium mb-2">Currency</h4>
           <div className="flex space-x-2">
-            <Button 
-              size="sm"
-              variant={currency === 'USD' ? "default" : "outline"} 
-              onClick={() => setCurrency('USD')}
-            >
+            <Button size="sm" variant={currency === 'USD' ? "default" : "outline"} onClick={() => setCurrency('USD')}>
               USD ($)
             </Button>
-            <Button 
-              size="sm"
-              variant={currency === 'DA' ? "default" : "outline"} 
-              onClick={() => setCurrency('DA')}
-            >
+            <Button size="sm" variant={currency === 'DA' ? "default" : "outline"} onClick={() => setCurrency('DA')}>
               DA (د.ج)
             </Button>
           </div>
         </div>
       </DropdownMenuContent>
-    </DropdownMenu>
-  );
+    </DropdownMenu>;
 };
-
 export default LanguageSelector;
