@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,9 +29,14 @@ import {
   ImagePlus, 
   Loader2, 
   PlusCircle, 
-  Trash 
+  Trash,
+  X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   name: z.string().min(3, {
@@ -55,14 +60,19 @@ const formSchema = z.object({
   inStock: z.coerce.number().int().positive({
     message: "Quantity must be a positive integer.",
   }),
+  image: z.any().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const SellParts = () => {
-  const [compatibilityInput, setCompatibilityInput] = React.useState('');
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [compatibilityInput, setCompatibilityInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -73,7 +83,8 @@ const SellParts = () => {
       category: "",
       description: "",
       compatibility: [],
-      inStock: 1
+      inStock: 1,
+      image: undefined,
     },
   });
 
@@ -92,13 +103,104 @@ const SellParts = () => {
     setValue('compatibility', compatibility.filter(c => c !== item));
   };
   
-  const onSubmit = (data: FormValues) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Image must be less than 5MB",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Validate file type
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Only JPEG, PNG, and WebP formats are supported",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Set the file and create a preview
+    setImageFile(file);
+    setValue('image', file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setValue('image', undefined);
+  };
+  
+  const uploadImage = async (file: File): Promise<string | null> => {
+    if (!file || !user) return null;
+    
+    try {
+      setIsUploading(true);
+      
+      // Create a unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `parts/${user.id}/${fileName}`;
+      
+      // Upload to Supabase Storage
+      const { error: uploadError, data } = await supabase.storage
+        .from('parts')
+        .upload(filePath, file);
+      
+      if (uploadError) {
+        throw new Error(uploadError.message);
+      }
+      
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('parts')
+        .getPublicUrl(filePath);
+        
+      return publicUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast({
+        title: "Upload Failed",
+        description: "There was a problem uploading your image. Please try again.",
+        variant: "destructive"
+      });
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log(data);
-      setIsSubmitting(false);
+    try {
+      // Upload image if available
+      let imageUrl = null;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+        if (!imageUrl) {
+          setIsSubmitting(false);
+          return; // Stop if image upload failed
+        }
+      }
+      
+      // Mock API call (replace with actual submission to your backend)
+      console.log({
+        ...data,
+        image: imageUrl
+      });
       
       toast({
         title: "Part Successfully Listed!",
@@ -107,7 +209,19 @@ const SellParts = () => {
       
       // Reset form
       form.reset();
-    }, 1500);
+      setImageFile(null);
+      setImagePreview(null);
+      
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Submission Failed",
+        description: "There was a problem submitting your form. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   const categories = [
@@ -228,20 +342,62 @@ const SellParts = () => {
                   />
                   
                   {/* Image Upload */}
-                  <FormItem>
-                    <FormLabel>Part Image</FormLabel>
-                    <FormControl>
-                      <div className="border-2 border-dashed rounded-md border-gray-300 p-4 flex flex-col items-center justify-center h-[102px]">
-                        <Button type="button" variant="outline" size="sm">
-                          <ImagePlus className="h-4 w-4 mr-2" />
-                          Upload Image
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      Max file size: 5MB. Supported formats: JPEG, PNG
-                    </FormDescription>
-                  </FormItem>
+                  <FormField
+                    control={control}
+                    name="image"
+                    render={({ field: { value, onChange, ...field } }) => (
+                      <FormItem>
+                        <FormLabel>Part Image</FormLabel>
+                        <FormControl>
+                          <div className="border-2 border-dashed rounded-md border-gray-300 p-4">
+                            {imagePreview ? (
+                              <div className="relative">
+                                <AspectRatio ratio={16/9} className="bg-muted overflow-hidden rounded-md">
+                                  <img 
+                                    src={imagePreview} 
+                                    alt="Part preview" 
+                                    className="object-cover w-full h-full"
+                                  />
+                                </AspectRatio>
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-2 right-2 h-8 w-8 rounded-full"
+                                  onClick={removeImage}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center h-[102px]">
+                                <label htmlFor="image-upload" className="cursor-pointer">
+                                  <div className="flex items-center justify-center">
+                                    <Button type="button" variant="outline" size="sm" className="cursor-pointer">
+                                      <ImagePlus className="h-4 w-4 mr-2" />
+                                      Upload Image
+                                    </Button>
+                                  </div>
+                                  <input
+                                    id="image-upload"
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    onChange={handleImageChange}
+                                    {...field}
+                                  />
+                                </label>
+                              </div>
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          Max file size: 5MB. Supported formats: JPEG, PNG, WebP
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 
                 {/* Description */}
@@ -322,12 +478,12 @@ const SellParts = () => {
                   <Button 
                     type="submit" 
                     className="bg-carTheme-navy hover:bg-carTheme-navy/80"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isUploading}
                   >
-                    {isSubmitting ? (
+                    {isSubmitting || isUploading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Submitting...
+                        {isUploading ? "Uploading..." : "Submitting..."}
                       </>
                     ) : (
                       <>
