@@ -31,7 +31,7 @@ const SettingsContext = createContext<SettingsContextType>({
 export const useSettings = () => useContext(SettingsContext);
 
 // Provider component
-export const SettingsProvider = ({ children }: { children: ReactNode }) => {
+const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguage] = useState<Language>('en');
   const [currency, setCurrency] = useState<Currency>('USD');
   
@@ -70,4 +70,5 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+export { SettingsProvider };
 export default SettingsProvider;

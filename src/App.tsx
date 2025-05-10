@@ -16,7 +16,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import SettingsProvider from "./contexts/SettingsContext";
+import { SettingsProvider } from "./contexts/SettingsContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import AuthGuard from "./components/AuthGuard";
 
