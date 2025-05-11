@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -72,7 +71,7 @@ const SellParts = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -144,7 +143,7 @@ const SellParts = () => {
   };
   
   const uploadImage = async (file: File): Promise<string | null> => {
-    if (!file || !user) return null;
+    if (!file || !currentUser) return null;
     
     try {
       setIsUploading(true);
@@ -152,7 +151,7 @@ const SellParts = () => {
       // Create a unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      const filePath = `parts/${user.id}/${fileName}`;
+      const filePath = `parts/${currentUser.id}/${fileName}`;
       
       // Upload to Supabase Storage
       const { error: uploadError, data } = await supabase.storage
