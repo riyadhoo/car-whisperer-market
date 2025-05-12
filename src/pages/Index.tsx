@@ -41,7 +41,7 @@ const Index = () => {
               </div>
               <div className="hidden md:block relative">
                 <div className="bg-carTheme-red rounded-full h-72 w-72 absolute -top-10 -right-10 opacity-30"></div>
-                <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&q=80" alt="Featured Car" className="rounded-lg relative z-10 shadow-xl" />
+                <img alt="Featured Car" src="/lovable-uploads/6d44aa70-9685-419b-8a80-1facc03c314a.png" className="rounded-lg relative" />
               </div>
             </div>
           </div>
