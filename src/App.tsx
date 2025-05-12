@@ -10,6 +10,7 @@ import CarDetails from "./pages/CarDetails";
 import Parts from "./pages/Parts";
 import PartDetails from "./pages/PartDetails";
 import Profile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
 import CreateProfile from "./pages/CreateProfile";
 import SellParts from "./pages/SellParts";
 import Login from "./pages/Login";
@@ -43,6 +44,11 @@ const App = () => (
                   </AuthGuard>
                 } />
                 <Route path="/profile/:id" element={<Profile />} />
+                <Route path="/edit-profile" element={
+                  <AuthGuard>
+                    <EditProfile />
+                  </AuthGuard>
+                } />
                 <Route path="/create-profile" element={<CreateProfile />} />
                 <Route path="/sell-parts" element={
                   <AuthGuard>

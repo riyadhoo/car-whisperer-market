@@ -1,10 +1,12 @@
 
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { users } from '@/data/mockUsers';
 import { parts } from '@/data/mockData';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   User, 
   Store, 
@@ -13,22 +15,104 @@ import {
   Globe, 
   Calendar, 
   Star, 
-  Package
+  Package,
+  Loader2
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import PartCard from '@/components/PartCard';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
   const { id } = useParams<{ id?: string }>();
+  const { currentUser, isAuthenticated } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
-  // For demo, show the first user if no ID is provided (simulating current user)
-  const profile = id ? users.find(user => user.id === id) : users[0];
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setLoading(true);
+      try {
+        if (id) {
+          // Fetch specific profile by ID
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', id)
+            .single();
+          
+          if (error) {
+            throw error;
+          }
+          
+          if (data) {
+            setProfile({
+              id: data.id,
+              name: data.name,
+              email: data.email,
+              avatar: data.avatar_url,
+              type: data.is_dealer ? 'Shop' : 'Individual',
+              bio: data.bio,
+              location: data.location,
+              website: data.website,
+              phone: data.phone,
+              joinDate: data.join_date,
+              ratingsGiven: data.ratings_given || 0,
+              partsListed: data.parts_listed || 0
+            });
+          }
+        } else if (currentUser) {
+          // Use current user if no ID provided
+          setProfile(currentUser);
+        } else {
+          // Fallback to mock data (temporary)
+          setProfile(users[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load profile data."
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [id, currentUser, toast]);
   
   // Get parts listed by this user
   const userParts = parts.filter(part => part.seller.id === profile?.id);
+  
+  const handleEditProfile = () => {
+    navigate('/edit-profile');
+  };
+  
+  const getInitials = (name: string) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+  
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Navigation />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading profile data...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
   
   if (!profile) {
     return (
@@ -44,10 +128,6 @@ const Profile = () => {
       </div>
     );
   }
-  
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -121,9 +201,11 @@ const Profile = () => {
                 </div>
                 
                 <div className="flex space-x-3">
-                  <Button variant="outline" size="sm">
-                    Edit Profile
-                  </Button>
+                  {(!id || (currentUser && id === currentUser.id)) && (
+                    <Button variant="outline" size="sm" onClick={handleEditProfile}>
+                      Edit Profile
+                    </Button>
+                  )}
                 </div>
               </div>
               
@@ -157,12 +239,12 @@ const Profile = () => {
                   <div className="text-center py-12">
                     <h3 className="text-lg font-medium mb-2">No Parts Listed Yet</h3>
                     <p className="text-muted-foreground mb-4">
-                      {profile.id === users[0].id ? 
+                      {(!id || (currentUser && id === currentUser.id)) ? 
                         "You haven't listed any parts for sale yet." :
                         "This user hasn't listed any parts for sale yet."}
                     </p>
-                    {profile.id === users[0].id && (
-                      <Button className="bg-carTheme-red hover:bg-carTheme-red/80">
+                    {(!id || (currentUser && id === currentUser.id)) && (
+                      <Button className="bg-carTheme-red hover:bg-carTheme-red/80" onClick={() => navigate('/sell-parts')}>
                         List Your First Part
                       </Button>
                     )}
