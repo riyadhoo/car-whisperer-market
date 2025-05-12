@@ -32,43 +32,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up the auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setIsAuthenticated(!!session);
         
         // Get user data if session exists
         if (session?.user) {
-          try {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-              
-            if (profile) {
-              setCurrentUser({
-                id: profile.id,
-                name: profile.name,
-                email: profile.email,
-                avatar: profile.avatar_url,
-                type: profile.is_dealer ? 'Shop' : 'Individual',
-                bio: profile.bio,
-                location: profile.location,
-                website: profile.website,
-                phone: profile.phone,
-                joinDate: profile.join_date,
-                ratingsGiven: profile.ratings_given,
-                partsListed: profile.parts_listed
-              });
+          // Use setTimeout to prevent potential deadlocks with Supabase auth
+          setTimeout(async () => {
+            try {
+              const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+                
+              if (error) {
+                console.error("Error fetching profile:", error);
+                setIsLoading(false);
+                return;
+              }
+                
+              if (profile) {
+                setCurrentUser({
+                  id: profile.id,
+                  name: profile.name,
+                  email: profile.email,
+                  avatar: profile.avatar_url,
+                  type: profile.is_dealer ? 'Shop' : 'Individual',
+                  bio: profile.bio,
+                  location: profile.location,
+                  website: profile.website,
+                  phone: profile.phone,
+                  joinDate: profile.join_date,
+                  ratingsGiven: profile.ratings_given || 0,
+                  partsListed: profile.parts_listed || 0
+                });
+              }
+              setIsLoading(false);
+            } catch (error) {
+              console.error("Error in auth change handler:", error);
+              setIsLoading(false);
             }
-          } catch (error) {
-            console.error("Error fetching user profile:", error);
-          }
+          }, 0);
         } else {
           setCurrentUser(null);
+          setIsLoading(false);
         }
-        
-        setIsLoading(false);
       }
     );
 
@@ -81,11 +91,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Get user data if session exists
         if (session?.user) {
-          const { data: profile } = await supabase
+          const { data: profile, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single();
+          
+          if (error) {
+            console.error("Error fetching profile:", error);
+            setIsLoading(false);
+            return;
+          }
             
           if (profile) {
             setCurrentUser({
@@ -99,8 +115,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               website: profile.website,
               phone: profile.phone,
               joinDate: profile.join_date,
-              ratingsGiven: profile.ratings_given,
-              partsListed: profile.parts_listed
+              ratingsGiven: profile.ratings_given || 0,
+              partsListed: profile.parts_listed || 0
             });
           }
         }
@@ -111,7 +127,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
-    getInitialSession();
+    // Wait briefly before getting the initial session
+    // This helps prevent race conditions
+    setTimeout(() => {
+      getInitialSession();
+    }, 0);
 
     return () => {
       subscription.unsubscribe();

@@ -27,8 +27,8 @@ import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
   const { id } = useParams<{ id?: string }>();
-  const { currentUser, isAuthenticated } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { currentUser, isAuthenticated, isLoading: authLoading } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -37,8 +37,8 @@ const Profile = () => {
     const fetchProfile = async () => {
       setLoading(true);
       try {
+        // If there's a specific ID, fetch that profile
         if (id) {
-          // Fetch specific profile by ID
           const { data, error } = await supabase
             .from('profiles')
             .select('*')
@@ -65,11 +65,13 @@ const Profile = () => {
               partsListed: data.parts_listed || 0
             });
           }
-        } else if (currentUser) {
-          // Use current user if no ID provided
+        } 
+        // If no ID but we have a currentUser, use that
+        else if (currentUser) {
           setProfile(currentUser);
-        } else {
-          // Fallback to mock data (temporary)
+        }
+        // Fallback to mock data if neither is available (temporary)
+        else if (!authLoading) {
           setProfile(users[0]);
         }
       } catch (error) {
@@ -84,8 +86,11 @@ const Profile = () => {
       }
     };
 
-    fetchProfile();
-  }, [id, currentUser, toast]);
+    // Only fetch when auth is no longer loading
+    if (!authLoading) {
+      fetchProfile();
+    }
+  }, [id, currentUser, authLoading, toast]);
   
   // Get parts listed by this user
   const userParts = parts.filter(part => part.seller.id === profile?.id);
@@ -99,7 +104,8 @@ const Profile = () => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
   
-  if (loading) {
+  // Show loading state while auth is initializing or profile is loading
+  if (authLoading || (loading && !profile)) {
     return (
       <div className="flex flex-col min-h-screen">
         <Navigation />
@@ -114,7 +120,8 @@ const Profile = () => {
     );
   }
   
-  if (!profile) {
+  // Show not found state if profile doesn't exist
+  if (!loading && !profile) {
     return (
       <div className="flex flex-col min-h-screen">
         <Navigation />
