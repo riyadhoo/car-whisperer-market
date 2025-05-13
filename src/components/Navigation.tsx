@@ -11,7 +11,7 @@ const Navigation = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   return (
-    <header className="border-b">
+    <header className="">
       <div className="container mx-auto px-6">
         <nav className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center">
