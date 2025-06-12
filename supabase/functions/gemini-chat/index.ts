@@ -26,39 +26,70 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
-    const systemPrompt = `You are a friendly automotive expert who helps people with their cars. Keep responses conversational and helpful:
+    const systemPrompt = `You are a friendly automotive expert who helps people find the perfect car. Your goal is to understand their needs through brief questions and provide personalized recommendations.
 
 CONVERSATION STYLE:
 - Keep responses short (2-4 sentences max)
-- Be warm and conversational, like talking to a trusted mechanic friend
-- Use simple, everyday language - avoid technical jargon unless necessary
+- Be warm and conversational, like talking to a trusted car salesperson
+- Use simple, everyday language
 
-DIAGNOSTIC APPROACH:
-- If a user mentions a car problem but hasn't given enough details, ask ONE specific clarifying question first
-- Once you have enough info (car make/model/year + clear symptoms), provide a concise diagnosis with 2-3 main possibilities
-- Give brief, actionable next steps - don't overwhelm with long explanations
-- Include safety warnings only when absolutely necessary
+CAR RECOMMENDATION PROCESS:
+When someone asks for car recommendations, follow this structured approach:
 
-QUESTIONS TO ASK (when needed):
-- What's the make, model, and year of your car?
-- When does this happen - during startup, driving, or idling?
-- Any warning lights on the dashboard?
-- How long has this been happening?
+1. FIRST INTERACTION - Ask about their PRIMARY NEED:
+   "I'd love to help you find the perfect car! Let me ask a few quick questions:
+   What will you mainly use this car for?
+   A) Daily commuting in the city
+   B) Family trips and errands  
+   C) Weekend adventures/off-road
+   D) Business/professional use"
 
-RECOMMENDATION FEATURES:
-- When users need car recommendations, include [RECOMMEND_CARS] at the end
-- When users need specific car parts, include [RECOMMEND_PARTS:part_type] at the end
-- For parts recommendations, be specific: [RECOMMEND_PARTS:battery] or [RECOMMEND_PARTS:brakes] etc.
+2. SECOND QUESTION - Ask about BUDGET:
+   "Great choice! What's your budget range?
+   A) Under 1,000,000 DA
+   B) 1,000,000 - 2,000,000 DA
+   C) 2,000,000 - 3,000,000 DA
+   D) Above 3,000,000 DA"
 
-Available cars in inventory: ${JSON.stringify(cars.slice(0, 10))}
+3. THIRD QUESTION - Ask about SIZE PREFERENCE:
+   "Perfect! What size car works best for you?
+   A) Compact (easy parking, fuel efficient)
+   B) Medium (balanced space and efficiency)
+   C) Large (maximum space and comfort)
+   D) SUV (high seating, versatility)"
 
-Be helpful but keep it brief and conversational.`;
+4. FINAL RECOMMENDATION - After getting 3 answers, provide recommendations:
+   - Analyze their answers (usage, budget, size)
+   - Filter available cars based on their preferences
+   - Include [RECOMMEND_CARS] at the end
+   - Explain why these cars match their needs
+
+PREFERENCE MATCHING LOGIC:
+- City commuting → Fuel efficient, compact/medium cars
+- Family use → Sedans, SUVs with good seating
+- Adventures → SUVs, all-wheel drive
+- Business → Professional looking sedans
+- Budget matching → Filter by price ranges
+- Size preference → Match body style
+
+DIAGNOSTIC APPROACH (for car problems):
+- If user mentions a car problem, ask ONE specific clarifying question
+- Provide brief diagnosis with 2-3 possibilities
+- Include [RECOMMEND_PARTS:part_type] when suggesting parts
+
+Available cars in inventory: ${JSON.stringify(cars.slice(0, 15))}
+
+Remember: Ask questions one at a time, wait for answers, then provide personalized recommendations!`;
 
     // Include conversation context
     const contextMessages = context?.previousMessages || [];
     const conversationContext = contextMessages.length > 0 
       ? `Previous conversation: ${contextMessages.map(m => `${m.isUser ? 'User' : 'Assistant'}: ${m.text}`).join('\n')}`
       : '';
+
+    // Check if this is a car recommendation flow
+    const isCarRecommendationRequest = message.toLowerCase().includes('recommend') && 
+      (message.toLowerCase().includes('car') || message.toLowerCase().includes('vehicle'));
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
@@ -77,7 +108,7 @@ Be helpful but keep it brief and conversational.`;
           temperature: 0.8,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 200, // Reduced from 400 to keep responses shorter
+          maxOutputTokens: 300,
         },
         safetySettings: [
           {
@@ -116,12 +147,72 @@ Be helpful but keep it brief and conversational.`;
     if (aiResponse.includes('[RECOMMEND_CARS]')) {
       aiResponse = aiResponse.replace('[RECOMMEND_CARS]', '').trim();
       
-      // Get car recommendations based on conversation context
-      const recommendedCars = cars.slice(0, 4); // Show top 4 cars
+      // Intelligent car filtering based on conversation context
+      const userMessages = contextMessages.filter(m => m.isUser).map(m => m.text.toLowerCase());
+      const currentMessage = message.toLowerCase();
+      const allUserText = [...userMessages, currentMessage].join(' ');
+      
+      let filteredCars = [...cars];
+      
+      // Budget filtering
+      if (allUserText.includes('under') || allUserText.includes('budget')) {
+        filteredCars = filteredCars.filter(car => car.price < 10000);
+      } else if (allUserText.includes('1,000,000') || allUserText.includes('medium budget')) {
+        filteredCars = filteredCars.filter(car => car.price >= 10000 && car.price < 20000);
+      } else if (allUserText.includes('2,000,000') || allUserText.includes('high budget')) {
+        filteredCars = filteredCars.filter(car => car.price >= 20000 && car.price < 30000);
+      }
+      
+      // Usage-based filtering
+      if (allUserText.includes('city') || allUserText.includes('commut')) {
+        filteredCars = filteredCars.filter(car => 
+          car.body_style?.toLowerCase().includes('sedan') || 
+          car.body_style?.toLowerCase().includes('hatch') ||
+          car.fuel_consumption?.toLowerCase().includes('efficient')
+        );
+      } else if (allUserText.includes('family') || allUserText.includes('trip')) {
+        filteredCars = filteredCars.filter(car => 
+          car.seating_capacity >= 5 ||
+          car.body_style?.toLowerCase().includes('suv') ||
+          car.body_style?.toLowerCase().includes('sedan')
+        );
+      } else if (allUserText.includes('adventure') || allUserText.includes('off-road')) {
+        filteredCars = filteredCars.filter(car => 
+          car.body_style?.toLowerCase().includes('suv') ||
+          car.drivetrain?.toLowerCase().includes('awd') ||
+          car.drivetrain?.toLowerCase().includes('4wd')
+        );
+      } else if (allUserText.includes('business') || allUserText.includes('professional')) {
+        filteredCars = filteredCars.filter(car => 
+          car.body_style?.toLowerCase().includes('sedan') ||
+          car.category?.toLowerCase().includes('luxury')
+        );
+      }
+      
+      // Size preference filtering
+      if (allUserText.includes('compact')) {
+        filteredCars = filteredCars.filter(car => 
+          car.body_style?.toLowerCase().includes('hatch') ||
+          car.body_style?.toLowerCase().includes('compact')
+        );
+      } else if (allUserText.includes('large') || allUserText.includes('suv')) {
+        filteredCars = filteredCars.filter(car => 
+          car.body_style?.toLowerCase().includes('suv') ||
+          car.seating_capacity >= 7
+        );
+      }
+      
+      // If no specific filters matched, show popular cars
+      if (filteredCars.length === 0) {
+        filteredCars = cars.slice(0, 4);
+      } else {
+        filteredCars = filteredCars.slice(0, 4);
+      }
+      
       recommendations = {
         type: 'cars',
-        items: recommendedCars,
-        title: 'Recommended Cars for You'
+        items: filteredCars,
+        title: 'Perfect Cars for You'
       };
     }
 

@@ -24,7 +24,7 @@ export function CarChatbot({ cars, isFloating = false }: CarChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: t('chat.initialMessage'),
+      text: "Hello! I'm your automotive assistant. I can help you:\n\n🚗 Find the perfect car based on your needs\n🔧 Troubleshoot car problems\n🛠️ Recommend parts and maintenance\n\nWhat can I help you with today?",
       isUser: false,
       timestamp: new Date()
     }
@@ -67,8 +67,8 @@ export function CarChatbot({ cars, isFloating = false }: CarChatbotProps) {
           message: inputMessage,
           cars: cars,
           context: {
-            // Send last 8 messages instead of 3 for better context retention
-            previousMessages: messages.slice(-8).map(m => ({ text: m.text, isUser: m.isUser }))
+            // Send last 10 messages for better context retention in recommendation flow
+            previousMessages: messages.slice(-10).map(m => ({ text: m.text, isUser: m.isUser }))
           }
         }
       });
