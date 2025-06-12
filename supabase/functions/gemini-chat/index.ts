@@ -64,6 +64,11 @@ When someone asks for car recommendations, follow this structured approach:
    - Include [RECOMMEND_CARS] at the end
    - Explain why these cars match their needs
 
+BRAND PREFERENCE HANDLING:
+- If user mentions a specific brand (like Volkswagen, Toyota, BMW, etc.), prioritize that brand in recommendations
+- If no cars from preferred brand are available, acknowledge this and suggest similar alternatives
+- Always respect brand preferences when filtering cars
+
 PREFERENCE MATCHING LOGIC:
 - City commuting → Fuel efficient, compact/medium cars
 - Family use → Sedans, SUVs with good seating
@@ -71,6 +76,7 @@ PREFERENCE MATCHING LOGIC:
 - Business → Professional looking sedans
 - Budget matching → Filter by price ranges
 - Size preference → Match body style
+- Brand preference → Filter by make first, then other criteria
 
 DIAGNOSTIC APPROACH (for car problems):
 - If user mentions a car problem, ask ONE specific clarifying question
@@ -79,7 +85,7 @@ DIAGNOSTIC APPROACH (for car problems):
 
 Available cars in inventory: ${JSON.stringify(cars.slice(0, 15))}
 
-Remember: Ask questions one at a time, wait for answers, then provide personalized recommendations!`;
+Remember: Ask questions one at a time, wait for answers, then provide personalized recommendations that respect brand preferences!`;
 
     // Include conversation context
     const contextMessages = context?.previousMessages || [];
@@ -87,7 +93,7 @@ Remember: Ask questions one at a time, wait for answers, then provide personaliz
       ? `Previous conversation: ${contextMessages.map(m => `${m.isUser ? 'User' : 'Assistant'}: ${m.text}`).join('\n')}`
       : '';
 
-    // Check if this is a car recommendation flow
+    // Check if this is a car recommendation request
     const isCarRecommendationRequest = message.toLowerCase().includes('recommend') && 
       (message.toLowerCase().includes('car') || message.toLowerCase().includes('vehicle'));
 
@@ -147,20 +153,38 @@ Remember: Ask questions one at a time, wait for answers, then provide personaliz
     if (aiResponse.includes('[RECOMMEND_CARS]')) {
       aiResponse = aiResponse.replace('[RECOMMEND_CARS]', '').trim();
       
-      // Intelligent car filtering based on conversation context
+      // Enhanced car filtering based on conversation context
       const userMessages = contextMessages.filter(m => m.isUser).map(m => m.text.toLowerCase());
       const currentMessage = message.toLowerCase();
       const allUserText = [...userMessages, currentMessage].join(' ');
       
       let filteredCars = [...cars];
       
-      // Budget filtering
-      if (allUserText.includes('under') || allUserText.includes('budget')) {
-        filteredCars = filteredCars.filter(car => car.price < 10000);
-      } else if (allUserText.includes('1,000,000') || allUserText.includes('medium budget')) {
-        filteredCars = filteredCars.filter(car => car.price >= 10000 && car.price < 20000);
-      } else if (allUserText.includes('2,000,000') || allUserText.includes('high budget')) {
-        filteredCars = filteredCars.filter(car => car.price >= 20000 && car.price < 30000);
+      // Enhanced brand filtering - check for specific car makes
+      const carBrands = ['volkswagen', 'toyota', 'honda', 'bmw', 'mercedes', 'audi', 'ford', 'chevrolet', 'nissan', 'hyundai', 'kia', 'mazda', 'subaru', 'lexus', 'infiniti', 'acura', 'volvo', 'jaguar', 'land rover', 'porsche', 'ferrari', 'lamborghini', 'bentley', 'rolls royce', 'maserati', 'alfa romeo', 'fiat', 'jeep', 'dodge', 'chrysler', 'cadillac', 'lincoln', 'buick', 'gmc', 'ram', 'tesla', 'peugeot', 'citroen', 'renault', 'dacia', 'skoda', 'seat'];
+      
+      for (const brand of carBrands) {
+        if (allUserText.includes(brand)) {
+          const brandFilteredCars = filteredCars.filter(car => 
+            car.make.toLowerCase().includes(brand) || car.make.toLowerCase() === brand
+          );
+          if (brandFilteredCars.length > 0) {
+            filteredCars = brandFilteredCars;
+            console.log(`Filtered by brand: ${brand}, found ${filteredCars.length} cars`);
+            break;
+          }
+        }
+      }
+      
+      // Budget filtering (only if no specific brand preference dominated the filtering)
+      if (allUserText.includes('under 1,000,000') || allUserText.includes('budget a') || allUserText.includes('cheap')) {
+        filteredCars = filteredCars.filter(car => car.price < 15000);
+      } else if (allUserText.includes('1,000,000') && allUserText.includes('2,000,000')) {
+        filteredCars = filteredCars.filter(car => car.price >= 15000 && car.price < 25000);
+      } else if (allUserText.includes('2,000,000') && allUserText.includes('3,000,000')) {
+        filteredCars = filteredCars.filter(car => car.price >= 25000 && car.price < 35000);
+      } else if (allUserText.includes('above 3,000,000') || allUserText.includes('expensive') || allUserText.includes('luxury')) {
+        filteredCars = filteredCars.filter(car => car.price >= 35000);
       }
       
       // Usage-based filtering
@@ -202,8 +226,15 @@ Remember: Ask questions one at a time, wait for answers, then provide personaliz
         );
       }
       
-      // If no specific filters matched, show popular cars
+      // If no cars match the criteria, provide feedback
       if (filteredCars.length === 0) {
+        // Check if user mentioned a specific brand that we don't have
+        for (const brand of carBrands) {
+          if (allUserText.includes(brand)) {
+            aiResponse += ` Unfortunately, we don't have any ${brand.charAt(0).toUpperCase() + brand.slice(1)} vehicles in our current inventory. Would you like me to suggest similar cars from other brands?`;
+            break;
+          }
+        }
         filteredCars = cars.slice(0, 4);
       } else {
         filteredCars = filteredCars.slice(0, 4);
