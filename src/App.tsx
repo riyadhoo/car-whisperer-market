@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -21,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import CarsPage from "./pages/CarsPage";
 import CarDetail from "./pages/CarDetail";
 import ChatPage from "./pages/ChatPage";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +42,7 @@ const AppContent = () => {
         <Route path="/cars" element={<CarsPage />} />
         <Route path="/cars/:id" element={<CarDetail />} />
         <Route path="/chat" element={<ChatPage />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Auth />} />
         <Route path="/register" element={<Auth />} />
         <Route path="/profile" element={<Profile />} />
