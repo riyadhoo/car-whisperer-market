@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -52,10 +51,9 @@ const Contact = () => {
       
       form.reset();
     } catch (error) {
-      toast({
+      toast.error({
         title: "Error",
         description: "Failed to send message. Please try again.",
-        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
