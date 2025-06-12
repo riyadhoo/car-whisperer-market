@@ -61,7 +61,7 @@ When someone asks for car recommendations, follow this structured approach:
 4. FINAL RECOMMENDATION - After getting 3 answers, provide recommendations:
    - Analyze their answers (usage, budget, size)
    - Filter available cars based on their preferences
-   - Include [RECOMMEND_CARS] at the end
+   - ALWAYS include [RECOMMEND_CARS] at the end of your response
    - Explain why these cars match their needs
 
 BRAND PREFERENCE HANDLING:
@@ -78,6 +78,8 @@ PREFERENCE MATCHING LOGIC:
 - Size preference → Match body style
 - Brand preference → Filter by make first, then other criteria
 
+IMPORTANT: When you have enough information to make car recommendations (after 3 questions OR if user provides enough details), ALWAYS end your response with [RECOMMEND_CARS]
+
 DIAGNOSTIC APPROACH (for car problems):
 - If user mentions a car problem, ask ONE specific clarifying question
 - Provide brief diagnosis with 2-3 possibilities
@@ -92,10 +94,6 @@ Remember: Ask questions one at a time, wait for answers, then provide personaliz
     const conversationContext = contextMessages.length > 0 
       ? `Previous conversation: ${contextMessages.map(m => `${m.isUser ? 'User' : 'Assistant'}: ${m.text}`).join('\n')}`
       : '';
-
-    // Check if this is a car recommendation request
-    const isCarRecommendationRequest = message.toLowerCase().includes('recommend') && 
-      (message.toLowerCase().includes('car') || message.toLowerCase().includes('vehicle'));
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
@@ -149,14 +147,19 @@ Remember: Ask questions one at a time, wait for answers, then provide personaliz
     let aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
     let recommendations = null;
 
+    console.log('AI Response before processing:', aiResponse);
+
     // Check for car recommendations
     if (aiResponse.includes('[RECOMMEND_CARS]')) {
+      console.log('Car recommendations detected, processing...');
       aiResponse = aiResponse.replace('[RECOMMEND_CARS]', '').trim();
       
       // Enhanced car filtering based on conversation context
       const userMessages = contextMessages.filter(m => m.isUser).map(m => m.text.toLowerCase());
       const currentMessage = message.toLowerCase();
       const allUserText = [...userMessages, currentMessage].join(' ');
+      
+      console.log('All user text for filtering:', allUserText);
       
       let filteredCars = [...cars];
       
@@ -228,6 +231,7 @@ Remember: Ask questions one at a time, wait for answers, then provide personaliz
       
       // If no cars match the criteria, provide feedback
       if (filteredCars.length === 0) {
+        console.log('No cars found after filtering, using fallback');
         // Check if user mentioned a specific brand that we don't have
         for (const brand of carBrands) {
           if (allUserText.includes(brand)) {
@@ -239,6 +243,8 @@ Remember: Ask questions one at a time, wait for answers, then provide personaliz
       } else {
         filteredCars = filteredCars.slice(0, 4);
       }
+      
+      console.log('Final filtered cars:', filteredCars.length);
       
       recommendations = {
         type: 'cars',
@@ -295,6 +301,8 @@ Remember: Ask questions one at a time, wait for answers, then provide personaliz
         };
       }
     }
+
+    console.log('Final recommendations:', recommendations);
 
     return new Response(JSON.stringify({ 
       response: aiResponse,
