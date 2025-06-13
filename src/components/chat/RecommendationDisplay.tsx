@@ -2,6 +2,7 @@
 import { CarRecommendationCard } from "./CarRecommendationCard";
 import { PartRecommendationCard } from "./PartRecommendationCard";
 import { CarProps } from "@/types/car";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface PartProps {
   id: string;
@@ -27,17 +28,20 @@ export function RecommendationDisplay({ type, items, title }: RecommendationDisp
   return (
     <div className="my-4">
       <h4 className="text-sm font-semibold mb-3 text-gray-700">{title}</h4>
-      <div className="flex gap-3 overflow-x-auto pb-2">
-        {type === 'cars' ? (
-          (items as CarProps[]).map((car) => (
-            <CarRecommendationCard key={car.id} car={car} />
-          ))
-        ) : (
-          (items as PartProps[]).map((part) => (
-            <PartRecommendationCard key={part.id} part={part} />
-          ))
-        )}
-      </div>
+      <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+        <div className="flex w-max space-x-3 p-4">
+          {type === 'cars' ? (
+            (items as CarProps[]).map((car) => (
+              <CarRecommendationCard key={car.id} car={car} />
+            ))
+          ) : (
+            (items as PartProps[]).map((part) => (
+              <PartRecommendationCard key={part.id} part={part} />
+            ))
+          )}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
     </div>
   );
 }
