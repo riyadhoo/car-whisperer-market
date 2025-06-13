@@ -24,7 +24,7 @@ const CarCard = ({ id, make, model, production_start_year, production_end_year, 
   const getImageUrl = (imageUrl: string | null) => {
     if (!imageUrl) return null;
     
-    if (imageUrl.startsWith('/lovable-uploads/')) {
+    if (imageUrl.startsWith('/uploads/')) {
       return imageUrl;
     }
     

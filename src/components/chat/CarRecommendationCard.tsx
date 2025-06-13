@@ -23,7 +23,7 @@ export function CarRecommendationCard({ car }: CarRecommendationCardProps) {
   const getImageUrl = (imageUrl: string | null) => {
     if (!imageUrl) return null;
     
-    if (imageUrl.startsWith('/lovable-uploads/')) {
+    if (imageUrl.startsWith('/uploads/')) {
       return imageUrl;
     }
     

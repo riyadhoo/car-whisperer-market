@@ -1,3 +1,4 @@
+
 import { Car } from "lucide-react";
 import { CarDetailProps } from "@/types/car";
 
@@ -9,8 +10,8 @@ export function CarImage({ car }: CarImageProps) {
   const getImageUrl = (imageUrl: string | null) => {
     if (!imageUrl) return null;
     
-    // If the URL starts with /lovable-uploads/, it's a local upload
-    if (imageUrl.startsWith('/lovable-uploads/')) {
+    // If the URL starts with /uploads/, it's a local upload
+    if (imageUrl.startsWith('/uploads/')) {
       return imageUrl;
     }
     

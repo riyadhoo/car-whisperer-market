@@ -32,7 +32,7 @@ export function PartRecommendationCard({ part }: PartRecommendationCardProps) {
   const getPartImageUrl = (imageUrl: string | null) => {
     if (!imageUrl) return null;
     
-    if (imageUrl.startsWith('/lovable-uploads/')) {
+    if (imageUrl.startsWith('/uploads/')) {
       return imageUrl;
     }
     
