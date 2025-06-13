@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
@@ -6,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Phone, User } from "lucide-react";
+import { MessageCircle, Phone, User, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
+import { UserRatingForm } from "@/components/profile/UserRatingForm";
+import { UserRatingDisplay } from "@/components/profile/UserRatingDisplay";
 
 interface UserProfile {
   id: string;
@@ -37,6 +38,9 @@ export default function UserProfile() {
   const [listings, setListings] = useState<PartListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [showRatingForm, setShowRatingForm] = useState(false);
+  const [existingRating, setExistingRating] = useState<any>(null);
+  const [userStats, setUserStats] = useState<any>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -50,6 +54,8 @@ export default function UserProfile() {
     }
 
     fetchUserProfile();
+    fetchUserRating();
+    fetchUserStats();
   }, [userId, isAuthenticated, navigate]);
 
   const fetchUserProfile = async () => {
@@ -133,6 +139,55 @@ export default function UserProfile() {
     }
   };
 
+  const fetchUserRating = async () => {
+    if (!user?.id || !userId || user.id === userId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("user_ratings")
+        .select("id, rating, comment")
+        .eq("rated_user_id", userId)
+        .eq("rater_user_id", user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error fetching user rating:", error);
+        return;
+      }
+
+      setExistingRating(data);
+    } catch (error) {
+      console.error("Error fetching user rating:", error);
+    }
+  };
+
+  const fetchUserStats = async () => {
+    if (!userId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("user_rating_stats")
+        .select("*")
+        .eq("rated_user_id", userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error fetching user stats:", error);
+        return;
+      }
+
+      setUserStats(data);
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+    }
+  };
+
+  const handleRatingSubmitted = () => {
+    setShowRatingForm(false);
+    fetchUserRating();
+    fetchUserStats();
+  };
+
   const handleSendMessage = () => {
     if (!userId) return;
     navigate(`/messages?user=${userId}`);
@@ -183,9 +238,22 @@ export default function UserProfile() {
               </Avatar>
               
               <div className="flex-1">
-                <CardTitle className="text-2xl mb-2">
-                  {profile.username || "Anonymous User"}
-                </CardTitle>
+                <div className="flex items-center gap-3 mb-2">
+                  <CardTitle className="text-2xl">
+                    {profile.username || "Anonymous User"}
+                  </CardTitle>
+                  {userStats && (
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm font-medium">
+                        {userStats.average_rating}/5
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        ({userStats.total_ratings} {userStats.total_ratings === 1 ? 'rating' : 'ratings'})
+                      </span>
+                    </div>
+                  )}
+                </div>
                 
                 {profile.bio && (
                   <p className="text-muted-foreground mb-4">{profile.bio}</p>
@@ -206,15 +274,40 @@ export default function UserProfile() {
                 </div>
                 
                 {!isOwnProfile && (
-                  <Button onClick={handleSendMessage} className="flex items-center gap-2">
-                    <MessageCircle size={16} />
-                    Send Message
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={handleSendMessage} className="flex items-center gap-2">
+                      <MessageCircle size={16} />
+                      Send Message
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => setShowRatingForm(!showRatingForm)}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <Star size={16} />
+                      {existingRating ? "Update Rating" : "Rate User"}
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
           </CardHeader>
         </Card>
+
+        {!isOwnProfile && showRatingForm && (
+          <div className="mb-8">
+            <UserRatingForm
+              ratedUserId={userId!}
+              onRatingSubmitted={handleRatingSubmitted}
+              existingRating={existingRating}
+            />
+          </div>
+        )}
+
+        <div className="mb-8">
+          <UserRatingDisplay userId={userId!} />
+        </div>
 
         <Card>
           <CardHeader>
