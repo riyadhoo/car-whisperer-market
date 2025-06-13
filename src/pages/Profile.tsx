@@ -121,7 +121,7 @@ export default function ProfilePage() {
           </TabsContent>
           
           <TabsContent value="listings">
-            <UserListings listings={listings} setListings={setListings} />
+            <UserListings listings={listings} />
           </TabsContent>
         </Tabs>
       </div>
