@@ -44,7 +44,7 @@ const AppContent = () => {
 
   return (
     <ErrorBoundary>
-      <div className="pb-16 md:pb-0">
+      <div className="pb-12 md:pb-0">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/parts" element={<PartsPage />} />
