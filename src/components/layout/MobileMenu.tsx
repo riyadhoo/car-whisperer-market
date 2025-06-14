@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -35,6 +34,7 @@ export function MobileMenu() {
     { path: "/parts", label: t('nav.parts') },
     { path: "/cars", label: t('nav.cars') },
     { path: "/chat", label: t('chat.aiAssistant') },
+    { path: "/contact", label: "Contact" },
   ];
 
   return (
