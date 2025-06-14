@@ -48,7 +48,7 @@ const BottomNavigation = () => {
               key={item.path}
               to={item.path}
               className={cn(
-                "flex flex-col items-center justify-center px-1 py-2 min-w-0 flex-1 transition-colors",
+                "flex flex-col items-center justify-center px-1 py-1 min-w-0 flex-1 transition-colors",
                 isActive 
                   ? "text-automotive-red" 
                   : "text-gray-600 dark:text-gray-400 hover:text-automotive-red"
