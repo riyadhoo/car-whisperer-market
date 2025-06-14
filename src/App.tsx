@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -23,6 +22,7 @@ import CarsPage from "./pages/CarsPage";
 import CarDetail from "./pages/CarDetail";
 import ChatPage from "./pages/ChatPage";
 import Contact from "./pages/Contact";
+import BottomNavigation from "@/components/layout/BottomNavigation";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,23 +44,27 @@ const AppContent = () => {
 
   return (
     <ErrorBoundary>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/parts" element={<PartsPage />} />
-        <Route path="/parts/:id" element={<PartDetail />} />
-        <Route path="/parts/create" element={<CreatePart />} />
-        <Route path="/parts/edit/:id" element={<EditPart />} />
-        <Route path="/cars" element={<CarsPage />} />
-        <Route path="/cars/:id" element={<CarDetail />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Auth />} />
-        <Route path="/register" element={<Auth />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/profile/:userId" element={<UserProfile />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <div className="pb-16 md:pb-0">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/parts" element={<PartsPage />} />
+          <Route path="/parts/:id" element={<PartDetail />} />
+          <Route path="/parts/create" element={<CreatePart />} />
+          <Route path="/parts/edit/:id" element={<EditPart />} />
+          <Route path="/cars" element={<CarsPage />} />
+          <Route path="/cars/:id" element={<CarDetail />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/register" element={<Auth />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:userId" element={<UserProfile />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        
+        <BottomNavigation />
+      </div>
       
       {showFloatingAssistant && <FloatingAssistant cars={cars} />}
     </ErrorBoundary>
