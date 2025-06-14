@@ -13,7 +13,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow pt-14 sm:pt-16">
+      <main className="flex-grow pt-[calc(3.5rem+env(safe-area-inset-top))] sm:pt-16">
         <Hero />
         <Services />
         <Categories />
