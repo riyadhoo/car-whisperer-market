@@ -51,7 +51,7 @@ const Contact = () => {
       
       form.reset();
     } catch (error) {
-      toast.error({
+      toast({
         title: "Error",
         description: "Failed to send message. Please try again.",
       });
@@ -167,7 +167,7 @@ const Contact = () => {
                     <Mail className="h-6 w-6 text-primary mt-1" />
                     <div>
                       <h3 className="font-semibold">Email</h3>
-                      <p className="text-muted-foreground">contact@torqueup.com</p>
+                      <p className="text-muted-foreground">torqueup.contact@gmail.com</p>
                       <p className="text-sm text-muted-foreground">We'll respond within 24 hours</p>
                     </div>
                   </div>
