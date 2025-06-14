@@ -20,7 +20,7 @@ export function FloatingAssistant({ cars }: FloatingAssistantProps) {
     <>
       {/* Floating Button */}
       {!isOpen && (
-        <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
+        <div className="fixed bottom-16 right-4 z-50 sm:bottom-6 sm:right-6 md:bottom-6">
           <Button
             onClick={() => setIsOpen(true)}
             size="icon"
