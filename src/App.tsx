@@ -37,8 +37,10 @@ const AppContent = () => {
   const location = useLocation();
   const { cars } = useFloatingAssistant();
   
-  // Don't show floating assistant on chat page
-  const showFloatingAssistant = location.pathname !== '/chat';
+  // Don't show floating assistant on chat page, login, or register pages
+  const showFloatingAssistant = location.pathname !== '/chat' && 
+                                location.pathname !== '/login' && 
+                                location.pathname !== '/register';
 
   return (
     <ErrorBoundary>
