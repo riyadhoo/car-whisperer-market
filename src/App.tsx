@@ -1,7 +1,8 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -61,14 +62,12 @@ const AppWithProviders = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="light">
         <LanguageProvider>
-          <BrowserRouter>
-            <TooltipProvider>
-              <Toaster />
-              <AuthProvider>
-                <AppContent />
-              </AuthProvider>
-            </TooltipProvider>
-          </BrowserRouter>
+          <TooltipProvider>
+            <Toaster />
+            <AuthProvider>
+              <AppContent />
+            </AuthProvider>
+          </TooltipProvider>
         </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
