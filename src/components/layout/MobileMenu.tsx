@@ -40,7 +40,7 @@ export function MobileMenu() {
   return (
     <>
       {/* Mobile menu button */}
-      <div className="md:hidden flex items-center space-x-2">
+      <div className="md:hidden flex items-center space-x-1">
         <div className="flex items-center space-x-1">
           <LanguageSelector />
           <Button
@@ -77,13 +77,13 @@ export function MobileMenu() {
           
           {/* Menu Panel */}
           <div className="fixed top-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto">
-            <div className="px-4 py-6 space-y-4">
+            <div className="px-4 py-6 space-y-4 safe-area-inset-bottom">
               {/* Navigation Links */}
               {navigationItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-automotive-red transition-colors py-2"
+                  className="block text-base sm:text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-automotive-red transition-colors py-3 px-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
@@ -98,21 +98,21 @@ export function MobileMenu() {
                 <div className="space-y-3">
                   <Link
                     to="/profile"
-                    className="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-automotive-red transition-colors py-2"
+                    className="block text-base sm:text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-automotive-red transition-colors py-3 px-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {t('nav.profile')}
                   </Link>
                   <Link
                     to="/messages"
-                    className="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-automotive-red transition-colors py-2"
+                    className="block text-base sm:text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-automotive-red transition-colors py-3 px-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Messages
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-automotive-red transition-colors w-full text-left py-2"
+                    className="block text-base sm:text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-automotive-red transition-colors w-full text-left py-3 px-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     {t('nav.logout')}
                   </button>
@@ -121,17 +121,17 @@ export function MobileMenu() {
                 <div className="space-y-3">
                   <Link
                     to="/login"
-                    className="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-automotive-red transition-colors py-2"
+                    className="block text-base sm:text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-automotive-red transition-colors py-3 px-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {t('nav.login')}
                   </Link>
                   <Link
                     to="/register"
-                    className="block w-full"
+                    className="block w-full px-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <Button className="w-full bg-automotive-red hover:bg-automotive-red/90 text-white">
+                    <Button className="w-full bg-automotive-red hover:bg-automotive-red/90 text-white py-3">
                       {t('nav.register')}
                     </Button>
                   </Link>

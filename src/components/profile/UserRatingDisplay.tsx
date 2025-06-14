@@ -98,8 +98,8 @@ export function UserRatingDisplay({ userId }: UserRatingDisplayProps) {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            size={16}
-            className={`${
+            size={14}
+            className={`sm:w-4 sm:h-4 ${
               star <= rating
                 ? "fill-yellow-400 text-yellow-400"
                 : "text-gray-300"
@@ -112,21 +112,21 @@ export function UserRatingDisplay({ userId }: UserRatingDisplayProps) {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center text-muted-foreground">Loading ratings...</div>
+      <Card className="w-full">
+        <CardContent className="p-4 sm:p-6">
+          <div className="text-center text-muted-foreground text-sm sm:text-base">Loading ratings...</div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          User Ratings
+    <Card className="w-full">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2 text-lg sm:text-xl">
+          <span>User Ratings</span>
           {stats && (
-            <div className="flex items-center gap-2 text-sm font-normal">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm font-normal">
               {renderStars(Math.round(stats.average_rating))}
               <span className="text-muted-foreground">
                 {stats.average_rating}/5 ({stats.total_ratings} {stats.total_ratings === 1 ? 'rating' : 'ratings'})
@@ -135,18 +135,18 @@ export function UserRatingDisplay({ userId }: UserRatingDisplayProps) {
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6 pt-0">
         {!stats || stats.total_ratings === 0 ? (
-          <div className="text-center text-muted-foreground py-4">
+          <div className="text-center text-muted-foreground py-4 text-sm sm:text-base">
             No ratings yet
           </div>
         ) : (
           <div className="space-y-4">
             {ratings.map((rating) => (
               <div key={rating.id} className="border-b border-gray-200 last:border-b-0 pb-4 last:pb-0">
-                <div className="flex items-start gap-3">
-                  <Link to={`/profile/${rating.rater_user_id}`} className="hover:opacity-80 transition-opacity">
-                    <Avatar className="h-8 w-8">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <Link to={`/profile/${rating.rater_user_id}`} className="hover:opacity-80 transition-opacity flex-shrink-0">
+                    <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
                       <AvatarImage src={rating.rater_profile.avatar_url || undefined} />
                       <AvatarFallback className="text-xs">
                         {rating.rater_profile.username?.charAt(0).toUpperCase() || "U"}
@@ -154,19 +154,21 @@ export function UserRatingDisplay({ userId }: UserRatingDisplayProps) {
                     </Avatar>
                   </Link>
                   
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Link to={`/profile/${rating.rater_user_id}`} className="font-medium text-sm hover:underline">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                      <Link to={`/profile/${rating.rater_user_id}`} className="font-medium text-sm hover:underline truncate">
                         {rating.rater_profile.username || "Anonymous User"}
                       </Link>
-                      {renderStars(rating.rating)}
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(rating.created_at).toLocaleDateString()}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {renderStars(rating.rating)}
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(rating.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                     
                     {rating.comment && (
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="text-sm text-muted-foreground mt-1 break-words">
                         {rating.comment}
                       </p>
                     )}

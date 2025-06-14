@@ -19,53 +19,55 @@ export function CarReviews({ reviews = [] }: CarReviewsProps) {
     : 0;
   
   return (
-    <Card>
-      <CardContent className="pt-6">
+    <Card className="w-full">
+      <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
         {reviews && reviews.length > 0 ? (
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold">{avgRating.toFixed(1)}</span>
-              <span className="text-muted-foreground">out of 5</span>
-              <span className="text-muted-foreground ml-2">({reviews.length} reviews)</span>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <span className="text-xl sm:text-2xl font-bold">{avgRating.toFixed(1)}</span>
+              <span className="text-muted-foreground text-sm sm:text-base">out of 5</span>
+              <span className="text-muted-foreground text-sm sm:text-base">({reviews.length} review{reviews.length !== 1 ? 's' : ''})</span>
             </div>
             
             <Separator />
             
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {reviews.map((review) => (
                 <div key={review.id} className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Link to={`/profile/${review.user_id}`} className="hover:opacity-80 transition-opacity">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage 
-                          src={review.user.avatar_url ? getAvatarUrl(review.user.avatar_url) as string : undefined} 
-                          alt={review.user.username} 
-                        />
-                        <AvatarFallback>{review.user.username.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                    </Link>
-                    <div>
-                      <Link to={`/profile/${review.user_id}`} className="font-medium hover:underline">
-                        {review.user.username}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1">
+                      <Link to={`/profile/${review.user_id}`} className="hover:opacity-80 transition-opacity flex-shrink-0">
+                        <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
+                          <AvatarImage 
+                            src={review.user.avatar_url ? getAvatarUrl(review.user.avatar_url) as string : undefined} 
+                            alt={review.user.username} 
+                          />
+                          <AvatarFallback className="text-xs">{review.user.username.charAt(0)}</AvatarFallback>
+                        </Avatar>
                       </Link>
-                      <div className="text-xs text-muted-foreground">
-                        {new Date(review.created_at).toLocaleDateString()}
+                      <div className="min-w-0 flex-1">
+                        <Link to={`/profile/${review.user_id}`} className="font-medium hover:underline text-sm sm:text-base block truncate">
+                          {review.user.username}
+                        </Link>
+                        <div className="text-xs text-muted-foreground">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
-                    <div className="ml-auto">
-                      <Badge>{review.rating} / 5</Badge>
+                    <div className="flex justify-start sm:justify-end">
+                      <Badge className="text-xs">{review.rating} / 5</Badge>
                     </div>
                   </div>
-                  <p className="text-sm">{review.comment}</p>
+                  <p className="text-sm break-words pl-8 sm:pl-10">{review.comment}</p>
                   <Separator />
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="text-center py-6">
-            <p className="text-muted-foreground mb-4">No reviews yet</p>
-            <Button>Add the First Review</Button>
+          <div className="text-center py-6 px-4">
+            <p className="text-muted-foreground mb-4 text-sm sm:text-base">No reviews yet</p>
+            <Button className="w-full sm:w-auto">Add the First Review</Button>
           </div>
         )}
       </CardContent>
