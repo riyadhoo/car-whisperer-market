@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Search, Car, MessageCircle } from "lucide-react";
+import { ArrowRight, ShoppingCart, Star, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const CTA = () => {
@@ -34,9 +34,9 @@ const CTA = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
             <div>
               <div className="bg-white/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Search size={32} />
+                <ShoppingCart size={32} />
               </div>
-              <h3 className="font-display font-semibold text-lg mb-2">Parts Search</h3>
+              <h3 className="font-display font-semibold text-lg mb-2">Parts Marketplace</h3>
               <p className="text-blue-100 text-sm">
                 Find the exact automotive parts you need with our advanced search system
               </p>
@@ -44,9 +44,9 @@ const CTA = () => {
             
             <div>
               <div className="bg-white/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Car size={32} />
+                <Star size={32} />
               </div>
-              <h3 className="font-display font-semibold text-lg mb-2">Vehicle Marketplace</h3>
+              <h3 className="font-display font-semibold text-lg mb-2">Cars Ratings</h3>
               <p className="text-blue-100 text-sm">
                 Browse and purchase quality pre-owned vehicles from verified sellers
               </p>
