@@ -74,3 +74,4 @@ export function ReviewsList({ ratings }: ReviewsListProps) {
       ))}
     </div>
   );
+}

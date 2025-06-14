@@ -147,3 +147,4 @@ export function PartDetailHeader({ part, averageRating, ratingsCount }: PartDeta
       </div>
     </div>
   );
+}

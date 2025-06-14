@@ -71,3 +71,4 @@ export function CarReviews({ reviews = [] }: CarReviewsProps) {
       </CardContent>
     </Card>
   );
+}

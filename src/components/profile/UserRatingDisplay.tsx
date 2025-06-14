@@ -179,3 +179,4 @@ export function UserRatingDisplay({ userId }: UserRatingDisplayProps) {
       </CardContent>
     </Card>
   );
+}
