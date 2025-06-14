@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,23 +47,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Only show welcome toast on actual sign-in event, not on session restoration
-      // We check hasInitialized to ensure we don't show it during the initial session check
-      if (event === 'SIGNED_IN' && hasInitialized && !sessionStorage.getItem('welcome_toast_shown')) {
-        // Mark that we've shown the welcome toast for this session
-        sessionStorage.setItem('welcome_toast_shown', 'true');
-        
-        setTimeout(() => {
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully signed in."
-          });
-        }, 0);
+      // Only show welcome toast on actual sign-in event (not on initial load or session restoration)
+      if (event === 'SIGNED_IN' && !isInitialLoad) {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in."
+        });
       }
       
-      // Clear the welcome toast flag when user signs out
-      if (event === 'SIGNED_OUT') {
-        sessionStorage.removeItem('welcome_toast_shown');
+      // Mark that we've completed the initial load after any auth event
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
       }
     });
 
@@ -72,13 +66,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setLoading(false);
-      setHasInitialized(true);
+      // Mark initial load as complete after getting session
+      setTimeout(() => setIsInitialLoad(false), 100);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [hasInitialized]);
+  }, [isInitialLoad]);
 
   const signUp = async (email: string, password: string, username: string, phoneNumber?: string): Promise<void> => {
     try {
