@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Link } from "react-router-dom";
 import { getAvatarUrl } from "@/components/parts/utils/partDataFormat";
 import { CarReviewProps } from "@/types/car";
 
@@ -34,15 +35,19 @@ export function CarReviews({ reviews = [] }: CarReviewsProps) {
               {reviews.map((review) => (
                 <div key={review.id} className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage 
-                        src={review.user.avatar_url ? getAvatarUrl(review.user.avatar_url) as string : undefined} 
-                        alt={review.user.username} 
-                      />
-                      <AvatarFallback>{review.user.username.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                    <Link to={`/profile/${review.user_id}`} className="hover:opacity-80 transition-opacity">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage 
+                          src={review.user.avatar_url ? getAvatarUrl(review.user.avatar_url) as string : undefined} 
+                          alt={review.user.username} 
+                        />
+                        <AvatarFallback>{review.user.username.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                    </Link>
                     <div>
-                      <div className="font-medium">{review.user.username}</div>
+                      <Link to={`/profile/${review.user_id}`} className="font-medium hover:underline">
+                        {review.user.username}
+                      </Link>
                       <div className="text-xs text-muted-foreground">
                         {new Date(review.created_at).toLocaleDateString()}
                       </div>
@@ -66,4 +71,3 @@ export function CarReviews({ reviews = [] }: CarReviewsProps) {
       </CardContent>
     </Card>
   );
-}

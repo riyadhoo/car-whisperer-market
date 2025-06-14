@@ -97,7 +97,7 @@ export function PartDetailHeader({ part, averageRating, ratingsCount }: PartDeta
           <div className="mb-6">
             <h3 className="font-semibold mb-2">Seller</h3>
             <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-muted overflow-hidden mr-3">
+              <Link to={`/profile/${part.seller.id}`} className="w-10 h-10 rounded-full bg-muted overflow-hidden mr-3 hover:opacity-80 transition-opacity">
                 {sellerAvatarUrl ? (
                   <img
                     src={sellerAvatarUrl}
@@ -109,9 +109,11 @@ export function PartDetailHeader({ part, averageRating, ratingsCount }: PartDeta
                     {part?.seller?.username?.charAt(0).toUpperCase() || "?"}
                   </div>
                 )}
-              </div>
+              </Link>
               <div>
-                <p className="font-medium">{part?.seller?.username}</p>
+                <Link to={`/profile/${part.seller.id}`} className="font-medium hover:underline">
+                  {part?.seller?.username}
+                </Link>
                 <p className="text-sm text-muted-foreground">
                   Listed on {part && new Date(part.created_at).toLocaleDateString()}
                 </p>
@@ -145,4 +147,3 @@ export function PartDetailHeader({ part, averageRating, ratingsCount }: PartDeta
       </div>
     </div>
   );
-}

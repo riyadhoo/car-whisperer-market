@@ -1,6 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Rating {
   id: string;
@@ -11,6 +12,7 @@ interface Rating {
     username: string;
     avatar_url: string;
   };
+  user_id?: string;
 }
 
 interface ReviewsListProps {
@@ -33,7 +35,7 @@ export function ReviewsList({ ratings }: ReviewsListProps) {
           <CardContent className="pt-6">
             <div className="flex justify-between mb-4">
               <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-muted overflow-hidden mr-3">
+                <Link to={`/profile/${rating.user_id}`} className="w-10 h-10 rounded-full bg-muted overflow-hidden mr-3 hover:opacity-80 transition-opacity">
                   {rating.user.avatar_url ? (
                     <img
                       src={rating.user.avatar_url}
@@ -45,9 +47,11 @@ export function ReviewsList({ ratings }: ReviewsListProps) {
                       {rating.user.username?.charAt(0).toUpperCase() || "?"}
                     </div>
                   )}
-                </div>
+                </Link>
                 <div>
-                  <p className="font-medium">{rating.user.username}</p>
+                  <Link to={`/profile/${rating.user_id}`} className="font-medium hover:underline">
+                    {rating.user.username}
+                  </Link>
                   <p className="text-xs text-muted-foreground">
                     {new Date(rating.created_at).toLocaleDateString()}
                   </p>
@@ -70,4 +74,3 @@ export function ReviewsList({ ratings }: ReviewsListProps) {
       ))}
     </div>
   );
-}

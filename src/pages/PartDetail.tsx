@@ -32,6 +32,7 @@ interface Rating {
   rating: number;
   comment: string;
   created_at: string;
+  user_id: string;
   user: {
     username: string;
     avatar_url: string;
@@ -89,6 +90,7 @@ export default function PartDetail() {
           rating: rating.rating,
           comment: rating.comment,
           created_at: rating.created_at,
+          user_id: rating.user_id,
           user: {
             username: userProfile?.username || "Unknown",
             avatar_url: userProfile?.avatar_url || "",

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 interface UserRating {
@@ -10,6 +11,7 @@ interface UserRating {
   rating: number;
   comment: string | null;
   created_at: string;
+  rater_user_id: string;
   rater_profile: {
     username: string | null;
     avatar_url: string | null;
@@ -75,6 +77,7 @@ export function UserRatingDisplay({ userId }: UserRatingDisplayProps) {
         rating: rating.rating,
         comment: rating.comment,
         created_at: rating.created_at,
+        rater_user_id: rating.rater_user_id,
         rater_profile: {
           username: rating.profiles?.username || null,
           avatar_url: rating.profiles?.avatar_url || null
@@ -142,18 +145,20 @@ export function UserRatingDisplay({ userId }: UserRatingDisplayProps) {
             {ratings.map((rating) => (
               <div key={rating.id} className="border-b border-gray-200 last:border-b-0 pb-4 last:pb-0">
                 <div className="flex items-start gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={rating.rater_profile.avatar_url || undefined} />
-                    <AvatarFallback className="text-xs">
-                      {rating.rater_profile.username?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
+                  <Link to={`/profile/${rating.rater_user_id}`} className="hover:opacity-80 transition-opacity">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={rating.rater_profile.avatar_url || undefined} />
+                      <AvatarFallback className="text-xs">
+                        {rating.rater_profile.username?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-sm">
+                      <Link to={`/profile/${rating.rater_user_id}`} className="font-medium text-sm hover:underline">
                         {rating.rater_profile.username || "Anonymous User"}
-                      </span>
+                      </Link>
                       {renderStars(rating.rating)}
                       <span className="text-xs text-muted-foreground">
                         {new Date(rating.created_at).toLocaleDateString()}
@@ -174,4 +179,3 @@ export function UserRatingDisplay({ userId }: UserRatingDisplayProps) {
       </CardContent>
     </Card>
   );
-}
