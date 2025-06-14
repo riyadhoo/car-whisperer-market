@@ -1,11 +1,11 @@
 
 import { useEffect } from "react";
-import { useAuth } from "@/lib/auth";
+import { useEnhancedAuth } from "@/lib/securityAuth";
 import { useConversations } from "./messaging/useConversations";
 import { useCurrentConversation } from "./messaging/useCurrentConversation";
 
 export function useMessages() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useEnhancedAuth();
   
   const {
     conversations,

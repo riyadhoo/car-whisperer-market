@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { useAuth } from "@/lib/auth";
+import { useEnhancedAuth } from "@/lib/securityAuth";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { PartDetailHeader } from "@/components/parts/PartDetailHeader";
@@ -46,7 +45,7 @@ export default function PartDetail() {
   const [loading, setLoading] = useState(true);
   const [userRating, setUserRating] = useState(0);
   const [comment, setComment] = useState("");
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useEnhancedAuth();
 
   const fetchRatings = async () => {
     if (!id) return;

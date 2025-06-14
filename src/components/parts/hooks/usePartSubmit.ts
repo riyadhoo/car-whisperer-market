@@ -1,63 +1,62 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User } from "@supabase/supabase-js";
 import { toast } from "@/hooks/use-toast";
+import { useEnhancedAuth } from "@/lib/securityAuth";
 import { validatePartInput } from "../utils/enhancedPartValidation";
 import { uploadPartImage } from "../utils/securePartImageUpload";
 import { insertPartData } from "../utils/partDataAccess";
 
-interface UsePartSubmitProps {
-  user: User | null;
-  title: string;
-  description: string;
-  price: string;
-  condition: string;
-  compatibleCars: string[];
-  image: File | null;
-}
-
-export default function usePartSubmit() {
+export const usePartSubmit = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useEnhancedAuth();
   const navigate = useNavigate();
 
-  // Main submit handler function
-  const handleSubmit = async ({
-    user,
-    title,
-    description,
-    price,
-    condition,
-    compatibleCars,
-    image
-  }: UsePartSubmitProps) => {
-    // Enhanced validation with all required parameters
-    const validation = validatePartInput(user, title, description, price, condition, compatibleCars, image);
-    
-    if (!validation.isValid) {
-      console.error("Validation failed:", validation.errors);
-      return;
-    }
+  const submitPart = async (
+    title: string,
+    description: string,
+    price: string,
+    condition: string,
+    compatibleCars: string[],
+    image: File | null
+  ) => {
+    setIsSubmitting(true);
     
     try {
-      setIsSubmitting(true);
-      console.log("Starting part submission process");
+      // Enhanced validation with security checks
+      const validation = validatePartInput(
+        user, 
+        title, 
+        description, 
+        price, 
+        condition, 
+        compatibleCars, 
+        image
+      );
       
-      // Upload image if one is selected
-      let imageUrl = null;
+      if (!validation.isValid) {
+        console.log("Validation failed:", validation.errors);
+        return false;
+      }
+
+      console.log("Part validation passed:", validation.sanitizedData);
+      
+      // Secure image upload
+      let imageUrl: string | null = null;
       if (image) {
-        console.log("Processing image upload:", image.name, image.type, image.size);
+        console.log("Uploading image with security checks...");
         imageUrl = await uploadPartImage(image);
         if (!imageUrl) {
-          throw new Error("Failed to upload image");
+          console.log("Image upload failed");
+          return false;
         }
       }
-      
+
       // Use sanitized data from validation
       const sanitizedData = validation.sanitizedData!;
       
-      // Insert part data into database with sanitized values
-      const partData = await insertPartData(
+      // Insert part data with sanitized inputs
+      await insertPartData(
         sanitizedData.title,
         sanitizedData.description || "",
         sanitizedData.price,
@@ -66,25 +65,25 @@ export default function usePartSubmit() {
         imageUrl,
         user!.id
       );
-      
-      // Show success message
+
       toast({
         title: "Success",
-        description: "Your part has been listed"
+        description: "Part listing created successfully! It will be reviewed before being published."
       });
-      
-      // Navigate to the newly created part page
-      navigate(`/parts/${partData.id}`);
+
+      navigate("/parts");
+      return true;
     } catch (error: any) {
-      console.error("Error creating listing:", error);
+      console.error("Error creating part:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create listing"
+        description: error.message || "Failed to create part listing"
       });
+      return false;
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return { handleSubmit, isSubmitting };
-}
+  return { submitPart, isSubmitting };
+};
