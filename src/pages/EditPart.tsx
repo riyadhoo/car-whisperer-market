@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
@@ -8,7 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import PartFormFields from "@/components/parts/PartFormFields";
 import PartImageUpload from "@/components/parts/PartImageUpload";
-import usePartSubmit from "@/components/parts/hooks/usePartSubmit";
+import { usePartSubmit } from "@/components/parts/hooks/usePartSubmit";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { getPartImageUrl } from "@/components/parts/utils/partDataFormat";
@@ -26,7 +25,7 @@ export default function EditPart() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
-  const { handleSubmit, isSubmitting } = usePartSubmit();
+  const { submitPart, isSubmitting } = usePartSubmit();
   
   if (!isAuthenticated) {
     navigate("/login");
