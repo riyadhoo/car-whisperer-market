@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,14 +46,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
-      if (event === 'SIGNED_IN') {
+      
+      // Only show welcome toast on actual sign-in, not on initial load or token refresh
+      if (event === 'SIGNED_IN' && !isInitialLoad) {
         setTimeout(() => {
-          // Fix: Using the correct toast format - with an object containing title and description
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in."
           });
         }, 0);
+      }
+      
+      // Mark that initial load is complete after first auth state change
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
       }
     });
 
@@ -67,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [isInitialLoad]);
 
   const signUp = async (email: string, password: string, username: string, phoneNumber?: string): Promise<void> => {
     try {
