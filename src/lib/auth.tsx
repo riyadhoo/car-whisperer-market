@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,8 +47,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Only show welcome toast on actual sign-in event and if we haven't shown it in this session
-      if (event === 'SIGNED_IN' && !sessionStorage.getItem('welcome_toast_shown')) {
+      // Only show welcome toast on actual sign-in event, not on session restoration
+      // We check hasInitialized to ensure we don't show it during the initial session check
+      if (event === 'SIGNED_IN' && hasInitialized && !sessionStorage.getItem('welcome_toast_shown')) {
         // Mark that we've shown the welcome toast for this session
         sessionStorage.setItem('welcome_toast_shown', 'true');
         
@@ -71,12 +72,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setLoading(false);
+      setHasInitialized(true);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [hasInitialized]);
 
   const signUp = async (email: string, password: string, username: string, phoneNumber?: string): Promise<void> => {
     try {
