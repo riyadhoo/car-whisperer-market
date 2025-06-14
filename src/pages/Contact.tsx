@@ -11,7 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
+
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
@@ -39,17 +41,29 @@ const Contact = () => {
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
     try {
-      // Simulate form submission - in a real app, you'd send this to your backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log("Submitting contact form:", data);
+      
+      const { data: response, error } = await supabase.functions.invoke('send-contact-email', {
+        body: data
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("Email sent successfully:", response);
+      
       toast({
         title: "Message Sent!",
-        description: "Thank you for contacting us. We'll get back to you soon."
+        description: "Thank you for contacting us. We'll get back to you soon at torqueup.contact@gmail.com."
       });
+      
       form.reset();
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error sending message:", error);
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again."
+        description: "Failed to send message. Please try again or contact us directly at torqueup.contact@gmail.com."
       });
     } finally {
       setIsSubmitting(false);
