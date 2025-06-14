@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,7 +39,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,8 +47,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Only show welcome toast on actual sign-in, not on initial load or token refresh
-      if (event === 'SIGNED_IN' && !isInitialLoad) {
+      // Only show welcome toast on actual sign-in event and if we haven't shown it in this session
+      if (event === 'SIGNED_IN' && !sessionStorage.getItem('welcome_toast_shown')) {
+        // Mark that we've shown the welcome toast for this session
+        sessionStorage.setItem('welcome_toast_shown', 'true');
+        
         setTimeout(() => {
           toast({
             title: "Welcome back!",
@@ -57,9 +60,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }, 0);
       }
       
-      // Mark that initial load is complete after first auth state change
-      if (isInitialLoad) {
-        setIsInitialLoad(false);
+      // Clear the welcome toast flag when user signs out
+      if (event === 'SIGNED_OUT') {
+        sessionStorage.removeItem('welcome_toast_shown');
       }
     });
 
@@ -73,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [isInitialLoad]);
+  }, []);
 
   const signUp = async (email: string, password: string, username: string, phoneNumber?: string): Promise<void> => {
     try {
@@ -154,6 +157,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // Clean up auth state
       cleanupAuthState();
+      
+      // Clear the welcome toast flag
+      sessionStorage.removeItem('welcome_toast_shown');
       
       // Attempt global sign out
       const { error } = await supabase.auth.signOut({ scope: 'global' });
