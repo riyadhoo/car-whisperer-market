@@ -41,10 +41,9 @@ export const ContactForm = () => {
     const userIdentifier = data.email || 'anonymous';
     if (!contactFormRateLimiter.isAllowed(userIdentifier)) {
       const remainingTime = Math.ceil(contactFormRateLimiter.getRemainingTime(userIdentifier) / 60000);
-      toast({
+      toast.error({
         title: "Too many attempts",
-        description: `Please wait ${remainingTime} minutes before sending another message.`,
-        variant: "destructive"
+        description: `Please wait ${remainingTime} minutes before sending another message.`
       });
       return;
     }
@@ -66,10 +65,9 @@ export const ContactForm = () => {
       
       form.reset();
     } catch (error: any) {
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to send message. Please try again or contact us directly.",
-        variant: "destructive"
+        description: "Failed to send message. Please try again or contact us directly."
       });
     } finally {
       setIsSubmitting(false);
