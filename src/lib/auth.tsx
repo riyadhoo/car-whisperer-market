@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isInitialSessionCheck, setIsInitialSessionCheck] = useState(true);
+  const [justSignedIn, setJustSignedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,12 +47,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Only show welcome toast on actual sign-in event (not during initial session restoration)
-      if (event === 'SIGNED_IN' && !isInitialSessionCheck && currentSession?.user) {
+      // Only show welcome toast if we just completed a sign-in action
+      if (event === 'SIGNED_IN' && justSignedIn && currentSession?.user) {
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in."
         });
+        setJustSignedIn(false); // Reset the flag
       }
       
       // Clear welcome toast flag on sign out
@@ -63,6 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             localStorage.removeItem(key);
           }
         });
+        setJustSignedIn(false); // Reset the flag
       }
     });
 
@@ -71,14 +72,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setLoading(false);
-      // Mark that initial session check is complete
-      setIsInitialSessionCheck(false);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [justSignedIn]);
 
   const signUp = async (email: string, password: string, username: string, phoneNumber?: string): Promise<void> => {
     try {
@@ -141,12 +140,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Continue even if this fails
       }
       
+      // Set the flag to indicate we're about to sign in
+      setJustSignedIn(true);
+      
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      if (error) {
+        setJustSignedIn(false); // Reset flag on error
+        throw error;
+      }
       
       // Force page reload for clean state
       window.location.href = "/";
     } catch (error: any) {
+      setJustSignedIn(false); // Reset flag on error
       toast({
         title: "Sign in failed",
         description: error.message
