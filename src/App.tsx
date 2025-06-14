@@ -8,6 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { FloatingAssistant } from "@/components/chat/FloatingAssistant";
 import { useFloatingAssistant } from "@/hooks/useFloatingAssistant";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import Index from "./pages/Index";
 import PartsPage from "./pages/PartsPage";
 import PartDetail from "./pages/PartDetail";
@@ -23,7 +24,14 @@ import CarDetail from "./pages/CarDetail";
 import ChatPage from "./pages/ChatPage";
 import Contact from "./pages/Contact";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 const AppContent = () => {
   const location = useLocation();
@@ -33,7 +41,7 @@ const AppContent = () => {
   const showFloatingAssistant = location.pathname !== '/chat';
 
   return (
-    <>
+    <ErrorBoundary>
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/parts" element={<PartsPage />} />
@@ -53,24 +61,26 @@ const AppContent = () => {
       </Routes>
       
       {showFloatingAssistant && <FloatingAssistant cars={cars} />}
-    </>
+    </ErrorBoundary>
   );
 };
 
 const AppWithProviders = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light">
-        <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <AuthProvider>
-              <AppContent />
-            </AuthProvider>
-          </TooltipProvider>
-        </LanguageProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider attribute="class" defaultTheme="light">
+          <LanguageProvider>
+            <TooltipProvider>
+              <Toaster />
+              <AuthProvider>
+                <AppContent />
+              </AuthProvider>
+            </TooltipProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
