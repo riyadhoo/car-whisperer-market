@@ -20,12 +20,12 @@ const CTA = () => {
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
             <Link to="/parts">
-              <Button size="lg" variant="secondary" className="btn-secondary w-full sm:w-auto">
+              <Button size="lg" className="bg-automotive-red hover:bg-automotive-red/90 text-white w-full sm:w-auto">
                 {t('home.hero.searchParts')} <ArrowRight size={16} className="ml-2" />
               </Button>
             </Link>
             <Link to="/sell">
-              <Button size="lg" variant="outline" className="border-white text-white w-full sm:w-auto bg-automotive-red">
+              <Button size="lg" variant="outline" className="border-white text-automotive-blue bg-white hover:bg-automotive-blue hover:text-white w-full sm:w-auto">
                 {t('parts.listPart')}
               </Button>
             </Link>
