@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,32 +39,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [justSignedIn, setJustSignedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    let hasShownWelcomeToast = false;
+
     // Set up the subscription first
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
+      console.log('Auth event:', event, 'Has shown toast:', hasShownWelcomeToast);
+      
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Only show welcome toast if we just completed a sign-in action
-      if (event === 'SIGNED_IN' && justSignedIn && currentSession?.user) {
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully signed in."
-        });
-        setJustSignedIn(false); // Reset the flag
+      // Only show welcome toast on SIGNED_IN event and only once per auth flow
+      if (event === 'SIGNED_IN' && currentSession?.user && !hasShownWelcomeToast) {
+        // Check if this is from a programmatic sign-in (not session restoration)
+        const isFromSignIn = localStorage.getItem('auth_sign_in_triggered') === 'true';
+        
+        if (isFromSignIn) {
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in."
+          });
+          hasShownWelcomeToast = true;
+          localStorage.removeItem('auth_sign_in_triggered');
+        }
       }
       
-      // Clear welcome toast flag on sign out
+      // Clear flags on sign out
       if (event === 'SIGNED_OUT') {
+        hasShownWelcomeToast = false;
+        localStorage.removeItem('auth_sign_in_triggered');
         Object.keys(localStorage).forEach((key) => {
           if (key.startsWith('welcome_toast_')) {
             localStorage.removeItem(key);
           }
         });
-        setJustSignedIn(false); // Reset the flag
       }
     });
 
@@ -77,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [justSignedIn]);
+  }, []); // Remove justSignedIn from dependencies
 
   const signUp = async (email: string, password: string, username: string, phoneNumber?: string): Promise<void> => {
     try {
@@ -140,19 +151,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Continue even if this fails
       }
       
-      // Set the flag to indicate we're about to sign in
-      setJustSignedIn(true);
+      // Set flag to indicate this is a programmatic sign-in
+      localStorage.setItem('auth_sign_in_triggered', 'true');
       
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        setJustSignedIn(false); // Reset flag on error
+        localStorage.removeItem('auth_sign_in_triggered');
         throw error;
       }
       
       // Force page reload for clean state
       window.location.href = "/";
     } catch (error: any) {
-      setJustSignedIn(false); // Reset flag on error
+      localStorage.removeItem('auth_sign_in_triggered');
       toast({
         title: "Sign in failed",
         description: error.message
@@ -168,7 +179,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Clear welcome toast flags
       Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith('welcome_toast_')) {
+        if (key.startsWith('welcome_toast_') || key === 'auth_sign_in_triggered') {
           localStorage.removeItem(key);
         }
       });
