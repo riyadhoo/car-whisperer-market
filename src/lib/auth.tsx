@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,7 +39,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,17 +47,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Only show welcome toast on actual sign-in event (not on initial load or session restoration)
-      if (event === 'SIGNED_IN' && !isInitialLoad) {
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully signed in."
-        });
+      // Only show welcome toast on actual sign-in event and if we haven't shown it yet
+      if (event === 'SIGNED_IN' && currentSession?.user) {
+        const welcomeToastKey = `welcome_toast_${currentSession.user.id}`;
+        const hasShownWelcome = localStorage.getItem(welcomeToastKey);
+        
+        if (!hasShownWelcome) {
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in."
+          });
+          localStorage.setItem(welcomeToastKey, 'true');
+        }
       }
       
-      // Mark that we've completed the initial load after any auth event
-      if (isInitialLoad) {
-        setIsInitialLoad(false);
+      // Clear welcome toast flag on sign out
+      if (event === 'SIGNED_OUT') {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('welcome_toast_')) {
+            localStorage.removeItem(key);
+          }
+        });
       }
     });
 
@@ -66,14 +76,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setLoading(false);
-      // Mark initial load as complete after getting session
-      setTimeout(() => setIsInitialLoad(false), 100);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [isInitialLoad]);
+  }, []);
 
   const signUp = async (email: string, password: string, username: string, phoneNumber?: string): Promise<void> => {
     try {
@@ -155,8 +163,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Clean up auth state
       cleanupAuthState();
       
-      // Clear the welcome toast flag
-      sessionStorage.removeItem('welcome_toast_shown');
+      // Clear welcome toast flags
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('welcome_toast_')) {
+          localStorage.removeItem(key);
+        }
+      });
       
       // Attempt global sign out
       const { error } = await supabase.auth.signOut({ scope: 'global' });
