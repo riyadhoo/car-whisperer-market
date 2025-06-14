@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isInitialSessionCheck, setIsInitialSessionCheck] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,18 +48,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Only show welcome toast on actual sign-in event and if we haven't shown it yet
-      if (event === 'SIGNED_IN' && currentSession?.user) {
-        const welcomeToastKey = `welcome_toast_${currentSession.user.id}`;
-        const hasShownWelcome = localStorage.getItem(welcomeToastKey);
-        
-        if (!hasShownWelcome) {
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully signed in."
-          });
-          localStorage.setItem(welcomeToastKey, 'true');
-        }
+      // Only show welcome toast on actual sign-in event (not during initial session restoration)
+      if (event === 'SIGNED_IN' && !isInitialSessionCheck && currentSession?.user) {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in."
+        });
       }
       
       // Clear welcome toast flag on sign out
@@ -76,6 +71,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setLoading(false);
+      // Mark that initial session check is complete
+      setIsInitialSessionCheck(false);
     });
 
     return () => {
