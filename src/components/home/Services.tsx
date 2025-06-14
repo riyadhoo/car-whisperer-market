@@ -1,5 +1,5 @@
 
-import { Car, Wrench, MessageCircle, Search, ShoppingCart, Bot } from "lucide-react";
+import { Car, Wrench, MessageCircle, Search, ShoppingCart, Bot, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -88,12 +88,12 @@ const Services = () => {
             </h3>
             <div className="grid md:grid-cols-3 gap-6 text-sm">
               <div className="flex items-center justify-center">
-                <Search className="h-5 w-5 mr-3 text-automotive-red" />
-                <span>Smart search and filtering</span>
+                <Star className="h-5 w-5 mr-3 text-automotive-red" />
+                <span>Cars ratings</span>
               </div>
               <div className="flex items-center justify-center">
                 <ShoppingCart className="h-5 w-5 mr-3 text-automotive-red" />
-                <span>Secure transactions</span>
+                <span>Parts marketplace</span>
               </div>
               <div className="flex items-center justify-center">
                 <MessageCircle className="h-5 w-5 mr-3 text-automotive-red" />
