@@ -7,16 +7,23 @@ import { useTheme } from "next-themes";
 export default function Auth() {
   const {
     isAuthenticated,
-    loading
+    loading,
+    user
   } = useAuth();
   const { theme } = useTheme();
   
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
+  
   if (isAuthenticated) {
+    // Redirect admin users to dashboard, others to home
+    if (user?.email === 'torqueup.contact@gmail.com') {
+      return <Navigate to="/admin" replace />;
+    }
     return <Navigate to="/" replace />;
   }
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 p-4 pt-20">
       <div className="w-full max-w-md">

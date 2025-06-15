@@ -35,6 +35,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           });
           hasShownWelcomeToast = true;
           localStorage.removeItem('auth_sign_in_triggered');
+          
+          // Check if user is admin and redirect to dashboard
+          if (currentSession.user.email === 'torqueup.contact@gmail.com') {
+            navigate('/admin');
+          }
         }
       }
       
@@ -60,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const signUp = async (email: string, password: string, username: string, phoneNumber?: string): Promise<void> => {
     try {
@@ -134,8 +139,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw error;
       }
       
-      // Force page reload for clean state
-      window.location.href = "/";
+      // Don't force page reload - let the auth state change handler redirect appropriately
     } catch (error: any) {
       localStorage.removeItem('auth_sign_in_triggered');
       toast({
