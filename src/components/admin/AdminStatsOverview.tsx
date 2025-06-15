@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Car, Wrench, MessageSquare, CheckCircle, Clock } from "lucide-react";
+import { Users, Car, Wrench, MessageSquare, CheckCircle, Clock, DollarSign } from "lucide-react";
 
 interface Stats {
   totalUsers: number;
@@ -11,6 +11,8 @@ interface Stats {
   totalMessages: number;
   pendingParts: number;
   approvedParts: number;
+  totalRevenue?: number;
+  averagePartPrice?: number;
 }
 
 export function AdminStatsOverview() {
@@ -44,6 +46,21 @@ export function AdminStatsOverview() {
           supabase.from('parts').select('*', { count: 'exact', head: true }).eq('approval_status', 'approved'),
         ]);
 
+        // Fetch average part price and total revenue
+        const { data: partsData } = await supabase
+          .from('parts')
+          .select('price')
+          .eq('approval_status', 'approved');
+
+        let averagePartPrice = 0;
+        let totalRevenue = 0;
+
+        if (partsData && partsData.length > 0) {
+          const prices = partsData.map(part => Number(part.price) || 0);
+          totalRevenue = prices.reduce((sum, price) => sum + price, 0);
+          averagePartPrice = totalRevenue / prices.length;
+        }
+
         setStats({
           totalUsers: totalUsers || 0,
           totalParts: totalParts || 0,
@@ -51,6 +68,8 @@ export function AdminStatsOverview() {
           totalMessages: totalMessages || 0,
           pendingParts: pendingParts || 0,
           approvedParts: approvedParts || 0,
+          totalRevenue,
+          averagePartPrice,
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
@@ -61,6 +80,10 @@ export function AdminStatsOverview() {
 
     fetchStats();
   }, []);
+
+  const formatPrice = (price: number) => {
+    return `${price.toFixed(2)} Da`;
+  };
 
   if (loading) {
     return <div className="text-center">Loading statistics...</div>;
@@ -145,6 +168,36 @@ export function AdminStatsOverview() {
           </p>
         </CardContent>
       </Card>
+
+      {stats.totalRevenue !== undefined && stats.totalRevenue > 0 && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Parts Value</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatPrice(stats.totalRevenue)}</div>
+            <p className="text-xs text-muted-foreground">
+              Combined value of all approved parts
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {stats.averagePartPrice !== undefined && stats.averagePartPrice > 0 && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Average Part Price</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatPrice(stats.averagePartPrice)}</div>
+            <p className="text-xs text-muted-foreground">
+              Average price of approved parts
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
