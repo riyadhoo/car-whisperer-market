@@ -96,7 +96,7 @@ const CarDetail = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <div className="container py-12 px-4 mx-auto flex justify-center flex-grow">
+        <div className="container py-12 px-4 mx-auto flex justify-center flex-grow pt-20 sm:pt-24">
           <p>Loading car details...</p>
         </div>
         <Footer />
@@ -108,7 +108,7 @@ const CarDetail = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <div className="container py-12 px-4 mx-auto flex-grow">
+        <div className="container py-12 px-4 mx-auto flex-grow pt-20 sm:pt-24">
           <Alert>
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error || "Car not found"}</AlertDescription>
@@ -122,7 +122,7 @@ const CarDetail = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="container py-8 px-4 mx-auto flex-grow">
+      <div className="container py-8 px-4 mx-auto flex-grow pt-20 sm:pt-24">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main content */}
           <div className="flex-1">
