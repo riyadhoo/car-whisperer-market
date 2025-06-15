@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CheckCircle, XCircle, Clock, Trash2, Eye } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Trash2, Eye, RotateCcw } from "lucide-react";
 
 interface Part {
   id: string;
@@ -33,7 +33,7 @@ export function AdminPartsManager() {
       setParts(data || []);
     } catch (error) {
       console.error('Error fetching parts:', error);
-      toast.error({
+      toast({
         title: "Error",
         description: "Failed to fetch parts"
       });
@@ -42,7 +42,7 @@ export function AdminPartsManager() {
     }
   };
 
-  const updatePartStatus = async (partId: string, status: 'approved' | 'rejected') => {
+  const updatePartStatus = async (partId: string, status: 'approved' | 'rejected' | 'pending') => {
     try {
       const { error } = await supabase
         .from('parts')
@@ -59,7 +59,7 @@ export function AdminPartsManager() {
       fetchParts(); // Refresh the list
     } catch (error) {
       console.error('Error updating part status:', error);
-      toast.error({
+      toast({
         title: "Error",
         description: "Failed to update part status"
       });
@@ -83,7 +83,7 @@ export function AdminPartsManager() {
       fetchParts(); // Refresh the list
     } catch (error) {
       console.error('Error deleting part:', error);
-      toast.error({
+      toast({
         title: "Error",
         description: "Failed to delete part"
       });
@@ -105,6 +105,88 @@ export function AdminPartsManager() {
     }
   };
 
+  const renderActionButtons = (part: Part) => {
+    return (
+      <div className="flex items-center gap-2">
+        {part.approval_status === 'pending' && (
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => updatePartStatus(part.id, 'approved')}
+              className="bg-green-50 hover:bg-green-100"
+              title="Approve"
+            >
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => updatePartStatus(part.id, 'rejected')}
+              className="bg-red-50 hover:bg-red-100"
+              title="Reject"
+            >
+              <XCircle className="h-4 w-4 text-red-600" />
+            </Button>
+          </>
+        )}
+        
+        {part.approval_status === 'approved' && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => updatePartStatus(part.id, 'pending')}
+            className="bg-yellow-50 hover:bg-yellow-100"
+            title="Move to Pending"
+          >
+            <RotateCcw className="h-4 w-4 text-yellow-600" />
+          </Button>
+        )}
+        
+        {part.approval_status === 'rejected' && (
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => updatePartStatus(part.id, 'approved')}
+              className="bg-green-50 hover:bg-green-100"
+              title="Approve"
+            >
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => updatePartStatus(part.id, 'pending')}
+              className="bg-yellow-50 hover:bg-yellow-100"
+              title="Move to Pending"
+            >
+              <RotateCcw className="h-4 w-4 text-yellow-600" />
+            </Button>
+          </>
+        )}
+        
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => window.open(`/parts/${part.id}`, '_blank')}
+          title="View Part"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => deletePart(part.id)}
+          className="bg-red-50 hover:bg-red-100"
+          title="Delete Part"
+        >
+          <Trash2 className="h-4 w-4 text-red-600" />
+        </Button>
+      </div>
+    );
+  };
+
   if (loading) {
     return <div className="text-center">Loading parts...</div>;
   }
@@ -114,7 +196,7 @@ export function AdminPartsManager() {
       <CardHeader>
         <CardTitle>Parts Management</CardTitle>
         <CardDescription>
-          Review and manage all parts listings
+          Review and manage all parts listings. You can change status between pending and approved.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -148,43 +230,7 @@ export function AdminPartsManager() {
                   {new Date(part.created_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    {part.approval_status === 'pending' && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updatePartStatus(part.id, 'approved')}
-                          className="bg-green-50 hover:bg-green-100"
-                        >
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updatePartStatus(part.id, 'rejected')}
-                          className="bg-red-50 hover:bg-red-100"
-                        >
-                          <XCircle className="h-4 w-4 text-red-600" />
-                        </Button>
-                      </>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => window.open(`/parts/${part.id}`, '_blank')}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => deletePart(part.id)}
-                      className="bg-red-50 hover:bg-red-100"
-                    >
-                      <Trash2 className="h-4 w-4 text-red-600" />
-                    </Button>
-                  </div>
+                  {renderActionButtons(part)}
                 </TableCell>
               </TableRow>
             ))}
