@@ -69,7 +69,6 @@ export const useAdminAuth = () => {
           toast({
             title: "Error",
             description: "Failed to create admin role.",
-            variant: "destructive"
           });
         }
       } else {
@@ -84,7 +83,6 @@ export const useAdminAuth = () => {
       toast({
         title: "Error",
         description: "Failed to create admin role.",
-        variant: "destructive"
       });
     }
   };
