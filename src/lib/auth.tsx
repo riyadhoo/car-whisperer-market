@@ -94,28 +94,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Clean up existing state
       cleanupAuthState();
       
-      // Special handling for admin user - skip email confirmation
-      const signUpOptions = email === "admin@torqueup.com" 
-        ? {
-            data: {
-              username,
-              phone_number: phoneNumber,
-            }
-          }
-        : {
+      // For admin user, we don't require email confirmation
+      if (email === "admin@torqueup.com") {
+        const { data, error } = await supabase.auth.signUp({ 
+          email, 
+          password,
+          options: {
             data: {
               username,
               phone_number: phoneNumber,
             },
-            options: {
-              emailRedirectTo: `${window.location.origin}/`
-            }
-          };
+            emailRedirectTo: undefined // Don't send confirmation email
+          }
+        });
+        
+        if (error) throw error;
+        
+        // For admin, try to sign in immediately after signup
+        if (data.user && !data.user.email_confirmed_at) {
+          // Use the admin API to confirm the user manually
+          toast({
+            title: "Admin account created",
+            description: "You can now sign in as admin."
+          });
+        }
+        
+        return;
+      }
       
+      // Regular user signup with email confirmation
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
-        ...signUpOptions
+        options: {
+          data: {
+            username,
+            phone_number: phoneNumber,
+          },
+          emailRedirectTo: `${window.location.origin}/`
+        }
       });
       
       if (error) throw error;
@@ -138,18 +155,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       }
       
-      // Different message for admin vs regular users
-      if (email === "admin@torqueup.com") {
-        toast({
-          title: "Admin account created",
-          description: "You can now sign in as admin."
-        });
-      } else {
-        toast({
-          title: "Account created",
-          description: "Please check your email to confirm your registration."
-        });
-      }
+      toast({
+        title: "Account created",
+        description: "Please check your email to confirm your registration."
+      });
     } catch (error: any) {
       toast({
         title: "Registration failed",
@@ -177,6 +186,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         localStorage.removeItem('auth_sign_in_triggered');
+        
+        // Special handling for admin user if email not confirmed
+        if (email === "admin@torqueup.com" && error.message.includes("Email not confirmed")) {
+          toast({
+            title: "Admin Login",
+            description: "Please create a new admin account using the signup form."
+          });
+        }
+        
         throw error;
       }
       
