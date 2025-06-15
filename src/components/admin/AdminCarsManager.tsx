@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Car, Plus, Edit, Trash2 } from "lucide-react";
+import { Car, Plus, Edit, Trash2, Upload } from "lucide-react";
 
 interface CarData {
   id: string;
@@ -17,6 +17,7 @@ interface CarData {
   production_start_year: number;
   production_end_year: number;
   price: number;
+  image_url?: string;
   created_at: string;
 }
 
@@ -24,12 +25,14 @@ export function AdminCarsManager() {
   const [cars, setCars] = useState<CarData[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCar, setEditingCar] = useState<CarData | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [newCar, setNewCar] = useState({
     make: '',
     model: '',
     production_start_year: new Date().getFullYear(),
     production_end_year: new Date().getFullYear(),
     price: 0,
+    image_url: '',
   });
 
   const fetchCars = async () => {
@@ -43,12 +46,65 @@ export function AdminCarsManager() {
       setCars(data || []);
     } catch (error) {
       console.error('Error fetching cars:', error);
-      toast.error({
+      toast({
         title: "Error",
         description: "Failed to fetch cars"
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const uploadCarImage = async (file: File): Promise<string | null> => {
+    try {
+      setUploading(true);
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('cars')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage
+        .from('cars')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image"
+      });
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const imageUrl = await uploadCarImage(file);
+    if (imageUrl) {
+      setNewCar({ ...newCar, image_url: imageUrl });
+    }
+  };
+
+  const handleEditImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !editingCar) return;
+
+    const imageUrl = await uploadCarImage(file);
+    if (imageUrl) {
+      setEditingCar({ ...editingCar, image_url: imageUrl });
     }
   };
 
@@ -71,12 +127,13 @@ export function AdminCarsManager() {
         production_start_year: new Date().getFullYear(),
         production_end_year: new Date().getFullYear(),
         price: 0,
+        image_url: '',
       });
 
       fetchCars();
     } catch (error) {
       console.error('Error creating car:', error);
-      toast.error({
+      toast({
         title: "Error",
         description: "Failed to create car"
       });
@@ -95,6 +152,7 @@ export function AdminCarsManager() {
           production_start_year: editingCar.production_start_year,
           production_end_year: editingCar.production_end_year,
           price: editingCar.price,
+          image_url: editingCar.image_url,
         })
         .eq('id', editingCar.id);
 
@@ -109,7 +167,7 @@ export function AdminCarsManager() {
       fetchCars();
     } catch (error) {
       console.error('Error updating car:', error);
-      toast.error({
+      toast({
         title: "Error",
         description: "Failed to update car"
       });
@@ -133,7 +191,7 @@ export function AdminCarsManager() {
       fetchCars();
     } catch (error) {
       console.error('Error deleting car:', error);
-      toast.error({
+      toast({
         title: "Error",
         description: "Failed to delete car"
       });
@@ -163,7 +221,7 @@ export function AdminCarsManager() {
                 Add Car
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Add New Car</DialogTitle>
                 <DialogDescription>
@@ -218,7 +276,36 @@ export function AdminCarsManager() {
                     onChange={(e) => setNewCar({ ...newCar, price: parseFloat(e.target.value) })}
                   />
                 </div>
-                <Button onClick={createCar}>Create Car</Button>
+                <div>
+                  <Label htmlFor="car_image">Car Image</Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="car_image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                    />
+                    {uploading && (
+                      <div className="flex items-center gap-2">
+                        <Upload className="h-4 w-4 animate-spin" />
+                        <span className="text-sm">Uploading...</span>
+                      </div>
+                    )}
+                  </div>
+                  {newCar.image_url && (
+                    <div className="mt-2">
+                      <img 
+                        src={newCar.image_url} 
+                        alt="Car preview" 
+                        className="w-32 h-24 object-cover rounded-md border"
+                      />
+                    </div>
+                  )}
+                </div>
+                <Button onClick={createCar} disabled={uploading}>
+                  Create Car
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -231,6 +318,7 @@ export function AdminCarsManager() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Image</TableHead>
               <TableHead>Make</TableHead>
               <TableHead>Model</TableHead>
               <TableHead>Years</TableHead>
@@ -241,6 +329,19 @@ export function AdminCarsManager() {
           <TableBody>
             {cars.map((car) => (
               <TableRow key={car.id}>
+                <TableCell>
+                  {car.image_url ? (
+                    <img 
+                      src={car.image_url} 
+                      alt={`${car.make} ${car.model}`}
+                      className="w-16 h-12 object-cover rounded-md"
+                    />
+                  ) : (
+                    <div className="w-16 h-12 bg-gray-200 rounded-md flex items-center justify-center">
+                      <Car className="h-6 w-6 text-gray-400" />
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell className="font-medium">{car.make}</TableCell>
                 <TableCell>{car.model}</TableCell>
                 <TableCell>
@@ -273,7 +374,7 @@ export function AdminCarsManager() {
 
         {/* Edit Dialog */}
         <Dialog open={!!editingCar} onOpenChange={() => setEditingCar(null)}>
-          <DialogContent>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Edit Car</DialogTitle>
               <DialogDescription>
@@ -329,7 +430,36 @@ export function AdminCarsManager() {
                     onChange={(e) => setEditingCar({ ...editingCar, price: parseFloat(e.target.value) })}
                   />
                 </div>
-                <Button onClick={updateCar}>Update Car</Button>
+                <div>
+                  <Label htmlFor="edit_car_image">Car Image</Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="edit_car_image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleEditImageUpload}
+                      disabled={uploading}
+                    />
+                    {uploading && (
+                      <div className="flex items-center gap-2">
+                        <Upload className="h-4 w-4 animate-spin" />
+                        <span className="text-sm">Uploading...</span>
+                      </div>
+                    )}
+                  </div>
+                  {editingCar.image_url && (
+                    <div className="mt-2">
+                      <img 
+                        src={editingCar.image_url} 
+                        alt="Car preview" 
+                        className="w-32 h-24 object-cover rounded-md border"
+                      />
+                    </div>
+                  )}
+                </div>
+                <Button onClick={updateCar} disabled={uploading}>
+                  Update Car
+                </Button>
               </div>
             )}
           </DialogContent>
