@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -347,7 +346,7 @@ export function AdminCarsManager() {
                 <TableCell>
                   {car.production_start_year} - {car.production_end_year}
                 </TableCell>
-                <TableCell>${car.price.toLocaleString()}</TableCell>
+                <TableCell>{car.price.toLocaleString()} Da</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button
