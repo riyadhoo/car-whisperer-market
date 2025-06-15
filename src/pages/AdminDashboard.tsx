@@ -1,42 +1,40 @@
 
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AdminPartsManager } from "@/components/admin/AdminPartsManager";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { AdminStatsOverview } from "@/components/admin/AdminStatsOverview";
 import { AdminUsersManager } from "@/components/admin/AdminUsersManager";
+import { AdminPartsManager } from "@/components/admin/AdminPartsManager";
 import { AdminCarsManager } from "@/components/admin/AdminCarsManager";
 import { AdminMessagesViewer } from "@/components/admin/AdminMessagesViewer";
-import { AdminStatsOverview } from "@/components/admin/AdminStatsOverview";
-import Navbar from "@/components/layout/Navbar";
-import { Shield, Users, Car, Wrench, MessageSquare, BarChart3 } from "lucide-react";
+import { Users, Car, MessageSquare, Package, Shield } from "lucide-react";
 
 export default function AdminDashboard() {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const { isAdmin, loading: adminLoading, createAdminUser } = useAdminAuth();
-  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const { isAdmin, loading, createAdminUser } = useAdminAuth();
+  const [activeTab, setActiveTab] = useState("overview");
 
+  // Auto-assign admin role to admin@gmail.com
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      navigate("/login");
-    }
-  }, [isAuthenticated, authLoading, navigate]);
-
-  useEffect(() => {
-    // Auto-create admin role for admin@gmail.com
-    if (user?.email === "admin@gmail.com" && !adminLoading && !isAdmin) {
+    if (user && user.email === "admin@gmail.com" && !isAdmin && !loading) {
       createAdminUser();
     }
-  }, [user, adminLoading, isAdmin, createAdminUser]);
+  }, [user, isAdmin, loading, createAdminUser]);
 
-  if (authLoading || adminLoading) {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] pt-16">
-          <div className="text-foreground">Loading admin dashboard...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Checking admin permissions...</p>
         </div>
       </div>
     );
@@ -44,81 +42,91 @@ export default function AdminDashboard() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] pt-16">
-          <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
-              <Shield className="h-16 w-16 mx-auto text-red-500 mb-4" />
-              <CardTitle>Access Denied</CardTitle>
-              <CardDescription>
-                You don't have admin privileges to access this dashboard.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center gap-2 justify-center">
+              <Shield className="h-6 w-6 text-red-500" />
+              Access Denied
+            </CardTitle>
+            <CardDescription>
+              You don't have admin privileges to access this page.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              To become an admin, please sign up with: <strong>admin@gmail.com</strong> and password: <strong>admin2025</strong>
+            </p>
+            <Button onClick={() => window.location.href = "/login"}>
+              Go to Login
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
+  const tabs = [
+    { id: "overview", label: "Overview", icon: Shield },
+    { id: "users", label: "Users", icon: Users },
+    { id: "parts", label: "Parts", icon: Package },
+    { id: "cars", label: "Cars", icon: Car },
+    { id: "messages", label: "Messages", icon: MessageSquare },
+  ];
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "overview":
+        return <AdminStatsOverview />;
+      case "users":
+        return <AdminUsersManager />;
+      case "parts":
+        return <AdminPartsManager />;
+      case "cars":
+        return <AdminCarsManager />;
+      case "messages":
+        return <AdminMessagesViewer />;
+      default:
+        return <AdminStatsOverview />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container max-w-7xl py-10 pt-24">
+    <div className="min-h-screen bg-gray-50 pt-20">
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-            <Shield className="h-8 w-8 text-automotive-red" />
-            Admin Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Manage all aspects of your TorqueUp platform
+          <div className="flex items-center gap-2 mb-2">
+            <Shield className="h-6 w-6 text-primary" />
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <Badge variant="destructive" className="ml-2">Admin</Badge>
+          </div>
+          <p className="text-muted-foreground">
+            Welcome, {user?.email}. Manage your TorqueUp platform from here.
           </p>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 bg-muted">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="parts" className="flex items-center gap-2">
-              <Wrench className="h-4 w-4" />
-              Parts
-            </TabsTrigger>
-            <TabsTrigger value="cars" className="flex items-center gap-2">
-              <Car className="h-4 w-4" />
-              Cars
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Messages
-            </TabsTrigger>
-          </TabsList>
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap gap-2 mb-6 border-b">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <Button
+                key={tab.id}
+                variant={activeTab === tab.id ? "default" : "ghost"}
+                onClick={() => setActiveTab(tab.id)}
+                className="flex items-center gap-2"
+              >
+                <Icon className="h-4 w-4" />
+                {tab.label}
+              </Button>
+            );
+          })}
+        </div>
 
-          <TabsContent value="overview">
-            <AdminStatsOverview />
-          </TabsContent>
-
-          <TabsContent value="users">
-            <AdminUsersManager />
-          </TabsContent>
-
-          <TabsContent value="parts">
-            <AdminPartsManager />
-          </TabsContent>
-
-          <TabsContent value="cars">
-            <AdminCarsManager />
-          </TabsContent>
-
-          <TabsContent value="messages">
-            <AdminMessagesViewer />
-          </TabsContent>
-        </Tabs>
+        {/* Tab Content */}
+        <div className="space-y-6">
+          {renderTabContent()}
+        </div>
       </div>
     </div>
   );
