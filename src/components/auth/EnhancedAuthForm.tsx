@@ -7,8 +7,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from "@/components/ui/label";
 import { profileValidationSchema } from "@/lib/validation";
 import { Eye, EyeOff, Shield } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-type AuthMode = "login" | "register";
+type AuthMode = "login" | "register" | "forgot-password";
 
 export default function EnhancedAuthForm() {
   const [mode, setMode] = useState<AuthMode>("login");
@@ -70,16 +72,18 @@ export default function EnhancedAuthForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Final validation
-    validateField('email', email);
-    validateField('password', password);
-    if (mode === 'register') {
-      validateField('username', username);
-      validateField('phone', phoneNumber);
-    }
-    
-    if (Object.keys(validationErrors).length > 0) {
-      return;
+    if (mode !== "forgot-password") {
+      // Final validation
+      validateField('email', email);
+      validateField('password', password);
+      if (mode === 'register') {
+        validateField('username', username);
+        validateField('phone', phoneNumber);
+      }
+      
+      if (Object.keys(validationErrors).length > 0) {
+        return;
+      }
     }
     
     setLoading(true);
@@ -87,11 +91,23 @@ export default function EnhancedAuthForm() {
     try {
       if (mode === "login") {
         await signIn(email, password);
-      } else {
+      } else if (mode === "register") {
         if (!username) {
           throw new Error("Username is required");
         }
         await signUp(email, password, username, phoneNumber);
+      } else if (mode === "forgot-password") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Reset email sent",
+          description: "Please check your email for password reset instructions.",
+        });
+        setMode("login");
       }
     } catch (error) {
       console.error("Authentication error:", error);
@@ -101,8 +117,34 @@ export default function EnhancedAuthForm() {
   };
 
   const toggleMode = () => {
-    setMode(mode === "login" ? "register" : "login");
+    if (mode === "login") {
+      setMode("register");
+    } else {
+      setMode("login");
+    }
     setValidationErrors({});
+  };
+
+  const getTitle = () => {
+    switch (mode) {
+      case "login":
+        return "Secure Sign In";
+      case "register":
+        return "Create Account";
+      case "forgot-password":
+        return "Reset Password";
+    }
+  };
+
+  const getDescription = () => {
+    switch (mode) {
+      case "login":
+        return "Enter your credentials to access your account";
+      case "register":
+        return "Create a new secure account to get started";
+      case "forgot-password":
+        return "Enter your email to receive reset instructions";
+    }
   };
 
   return (
@@ -110,13 +152,10 @@ export default function EnhancedAuthForm() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="h-5 w-5" />
-          {mode === "login" ? "Secure Sign In" : "Create Account"}
+          {getTitle()}
         </CardTitle>
         <CardDescription>
-          {mode === "login" 
-            ? "Enter your credentials to access your account" 
-            : "Create a new secure account to get started"
-          }
+          {getDescription()}
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
@@ -150,7 +189,9 @@ export default function EnhancedAuthForm() {
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                validateField('email', e.target.value);
+                if (mode !== "forgot-password") {
+                  validateField('email', e.target.value);
+                }
               }}
               className={validationErrors.email ? "border-red-500" : ""}
               required
@@ -180,48 +221,62 @@ export default function EnhancedAuthForm() {
             </div>
           )}
           
-          <div className="space-y-2">
-            <Label htmlFor="password">Password *</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  validateField('password', e.target.value);
-                }}
-                className={validationErrors.password ? "border-red-500" : ""}
-                required
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
+          {mode !== "forgot-password" && (
+            <div className="space-y-2">
+              <Label htmlFor="password">Password *</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    validateField('password', e.target.value);
+                  }}
+                  className={validationErrors.password ? "border-red-500" : ""}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+              {validationErrors.password && (
+                <p className="text-sm text-red-500">{validationErrors.password}</p>
+              )}
+              {mode === "register" && (
+                <p className="text-xs text-muted-foreground">
+                  Password must be at least 8 characters with uppercase, lowercase, and number
+                </p>
+              )}
             </div>
-            {validationErrors.password && (
-              <p className="text-sm text-red-500">{validationErrors.password}</p>
-            )}
-            {mode === "register" && (
-              <p className="text-xs text-muted-foreground">
-                Password must be at least 8 characters with uppercase, lowercase, and number
-              </p>
-            )}
-          </div>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={loading || Object.keys(validationErrors).length > 0}
+            disabled={loading || (mode !== "forgot-password" && Object.keys(validationErrors).length > 0)}
           >
-            {loading ? "Processing..." : mode === "login" ? "Sign In" : "Create Account"}
+            {loading ? "Processing..." : mode === "login" ? "Sign In" : mode === "register" ? "Create Account" : "Send Reset Email"}
           </Button>
+          
+          {mode === "login" && (
+            <Button
+              type="button"
+              variant="link"
+              className="text-sm"
+              onClick={() => setMode("forgot-password")}
+            >
+              Forgot your password?
+            </Button>
+          )}
+          
           <Button
             type="button"
             variant="ghost"
