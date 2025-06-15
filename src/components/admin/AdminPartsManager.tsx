@@ -33,10 +33,9 @@ export function AdminPartsManager() {
       setParts(data || []);
     } catch (error) {
       console.error('Error fetching parts:', error);
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to fetch parts",
-        variant: "destructive"
+        description: "Failed to fetch parts"
       });
     } finally {
       setLoading(false);
@@ -60,10 +59,9 @@ export function AdminPartsManager() {
       fetchParts(); // Refresh the list
     } catch (error) {
       console.error('Error updating part status:', error);
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to update part status",
-        variant: "destructive"
+        description: "Failed to update part status"
       });
     }
   };
@@ -85,10 +83,9 @@ export function AdminPartsManager() {
       fetchParts(); // Refresh the list
     } catch (error) {
       console.error('Error deleting part:', error);
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to delete part",
-        variant: "destructive"
+        description: "Failed to delete part"
       });
     }
   };

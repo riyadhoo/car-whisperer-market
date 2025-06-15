@@ -55,10 +55,9 @@ export function AdminUsersManager() {
       setUsers(enhancedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to fetch users",
-        variant: "destructive"
+        description: "Failed to fetch users"
       });
     } finally {
       setLoading(false);
@@ -99,10 +98,9 @@ export function AdminUsersManager() {
       fetchUsers(); // Refresh the list
     } catch (error) {
       console.error('Error updating user role:', error);
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to update user role",
-        variant: "destructive"
+        description: "Failed to update user role"
       });
     }
   };

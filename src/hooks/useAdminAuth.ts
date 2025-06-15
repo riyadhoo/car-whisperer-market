@@ -53,10 +53,9 @@ export const useAdminAuth = () => {
 
       if (error) {
         console.error('Error creating admin role:', error);
-        toast({
+        toast.error({
           title: "Error",
-          description: "Failed to create admin role.",
-          variant: "destructive"
+          description: "Failed to create admin role."
         });
       } else {
         setIsAdmin(true);

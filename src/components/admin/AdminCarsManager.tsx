@@ -43,10 +43,9 @@ export function AdminCarsManager() {
       setCars(data || []);
     } catch (error) {
       console.error('Error fetching cars:', error);
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to fetch cars",
-        variant: "destructive"
+        description: "Failed to fetch cars"
       });
     } finally {
       setLoading(false);
@@ -77,10 +76,9 @@ export function AdminCarsManager() {
       fetchCars();
     } catch (error) {
       console.error('Error creating car:', error);
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to create car",
-        variant: "destructive"
+        description: "Failed to create car"
       });
     }
   };
@@ -111,10 +109,9 @@ export function AdminCarsManager() {
       fetchCars();
     } catch (error) {
       console.error('Error updating car:', error);
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to update car",
-        variant: "destructive"
+        description: "Failed to update car"
       });
     }
   };
@@ -136,10 +133,9 @@ export function AdminCarsManager() {
       fetchCars();
     } catch (error) {
       console.error('Error deleting car:', error);
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to delete car",
-        variant: "destructive"
+        description: "Failed to delete car"
       });
     }
   };

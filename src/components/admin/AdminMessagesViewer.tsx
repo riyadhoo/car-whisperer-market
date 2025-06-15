@@ -32,10 +32,9 @@ export function AdminMessagesViewer() {
       setMessages(data || []);
     } catch (error) {
       console.error('Error fetching messages:', error);
-      toast({
+      toast.error({
         title: "Error",
-        description: "Failed to fetch messages",
-        variant: "destructive"
+        description: "Failed to fetch messages"
       });
     } finally {
       setLoading(false);
