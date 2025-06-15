@@ -22,6 +22,7 @@ import CarsPage from "./pages/CarsPage";
 import CarDetail from "./pages/CarDetail";
 import ChatPage from "./pages/ChatPage";
 import Contact from "./pages/Contact";
+import AdminDashboard from "./pages/AdminDashboard";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 
 const queryClient = new QueryClient({
@@ -37,10 +38,11 @@ const AppContent = () => {
   const location = useLocation();
   const { cars } = useFloatingAssistant();
   
-  // Don't show floating assistant on chat page, login, or register pages
+  // Don't show floating assistant on chat page, login, register, or admin pages
   const showFloatingAssistant = location.pathname !== '/chat' && 
                                 location.pathname !== '/login' && 
-                                location.pathname !== '/register';
+                                location.pathname !== '/register' &&
+                                !location.pathname.startsWith('/admin');
 
   return (
     <ErrorBoundary>
@@ -60,6 +62,7 @@ const AppContent = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/:userId" element={<UserProfile />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         

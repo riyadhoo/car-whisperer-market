@@ -1,6 +1,7 @@
 
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -8,14 +9,16 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Moon, Sun, MessageCircle } from "lucide-react";
+import { User, LogOut, Moon, Sun, MessageCircle, Shield } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "next-themes";
 
 export function NavbarActions() {
   const { user, isAuthenticated, signOut } = useAuth();
+  const { isAdmin } = useAdminAuth();
   const { t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
@@ -76,6 +79,18 @@ export function NavbarActions() {
                 <span>Messages</span>
               </Link>
             </DropdownMenuItem>
+            {isAdmin && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/admin" className="flex items-center">
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Admin Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+              </>
+            )}
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>{t('nav.logout')}</span>
