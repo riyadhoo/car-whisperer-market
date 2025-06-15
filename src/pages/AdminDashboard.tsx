@@ -11,6 +11,7 @@ import { AdminUsersManager } from "@/components/admin/AdminUsersManager";
 import { AdminPartsManager } from "@/components/admin/AdminPartsManager";
 import { AdminCarsManager } from "@/components/admin/AdminCarsManager";
 import { AdminMessagesViewer } from "@/components/admin/AdminMessagesViewer";
+import { NavbarLogo } from "@/components/layout/NavbarLogo";
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -58,7 +59,6 @@ export default function AdminDashboard() {
       toast({
         title: "Error",
         description: "Failed to log out. Please try again.",
-        variant: "destructive",
       });
     }
   };
@@ -153,6 +153,9 @@ export default function AdminDashboard() {
       <div className="min-h-screen flex w-full">
         <Sidebar>
           <SidebarHeader className="p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <NavbarLogo />
+            </div>
             <div className="flex items-center gap-2">
               <Shield className="h-6 w-6 text-primary" />
               <div>
