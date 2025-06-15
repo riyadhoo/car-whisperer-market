@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,15 +94,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Clean up existing state
       cleanupAuthState();
       
+      // Special handling for admin user - skip email confirmation
+      const signUpOptions = email === "admin@torqueup.com" 
+        ? {
+            data: {
+              username,
+              phone_number: phoneNumber,
+            }
+          }
+        : {
+            data: {
+              username,
+              phone_number: phoneNumber,
+            },
+            options: {
+              emailRedirectTo: `${window.location.origin}/`
+            }
+          };
+      
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
-        options: {
-          data: {
-            username,
-            phone_number: phoneNumber,
-          }
-        }
+        ...signUpOptions
       });
       
       if (error) throw error;
@@ -126,10 +138,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       }
       
-      toast({
-        title: "Account created",
-        description: "Please check your email to confirm your registration."
-      });
+      // Different message for admin vs regular users
+      if (email === "admin@torqueup.com") {
+        toast({
+          title: "Admin account created",
+          description: "You can now sign in as admin."
+        });
+      } else {
+        toast({
+          title: "Account created",
+          description: "Please check your email to confirm your registration."
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Registration failed",
