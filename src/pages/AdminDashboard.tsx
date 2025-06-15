@@ -18,9 +18,9 @@ export default function AdminDashboard() {
   const { isAdmin, loading, createAdminUser } = useAdminAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Auto-assign admin role to admin@torqueup.com
+  // Auto-assign admin role to torqueup.contact@gmail.com
   useEffect(() => {
-    if (user && user.email === "admin@torqueup.com" && !isAdmin && !loading) {
+    if (user && user.email === "torqueup.contact@gmail.com" && !isAdmin && !loading) {
       createAdminUser();
     }
   }, [user, isAdmin, loading, createAdminUser]);
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-sm text-muted-foreground mb-4">
-              To become an admin, please sign up with: <strong>admin@torqueup.com</strong> and password: <strong>admin2025</strong>
+              To become an admin, please sign up with: <strong>torqueup.contact@gmail.com</strong>
             </p>
             <Button onClick={() => window.location.href = "/login"}>
               Go to Login
