@@ -218,7 +218,7 @@ export function AdminPartsManager() {
                   {part.title}
                 </TableCell>
                 <TableCell>
-                  ${part.price}
+                  {part.price} Da
                 </TableCell>
                 <TableCell>
                   {part.condition}
