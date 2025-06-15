@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -17,13 +16,15 @@ export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuth();
   const { isAdmin, loading, createAdminUser } = useAdminAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [hasTriedBootstrap, setHasTriedBootstrap] = useState(false);
 
   // Auto-assign admin role to torqueup.contact@gmail.com
   useEffect(() => {
-    if (user && user.email === "torqueup.contact@gmail.com" && !isAdmin && !loading) {
+    if (user && user.email === "torqueup.contact@gmail.com" && !isAdmin && !loading && !hasTriedBootstrap) {
+      setHasTriedBootstrap(true);
       createAdminUser();
     }
-  }, [user, isAdmin, loading, createAdminUser]);
+  }, [user, isAdmin, loading, createAdminUser, hasTriedBootstrap]);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -54,12 +55,31 @@ export default function AdminDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <p className="text-sm text-muted-foreground mb-4">
-              To become an admin, please sign up with: <strong>torqueup.contact@gmail.com</strong>
-            </p>
-            <Button onClick={() => window.location.href = "/login"}>
-              Go to Login
-            </Button>
+            {user?.email === 'torqueup.contact@gmail.com' ? (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Admin setup is required. Click the button below to create your admin role.
+                </p>
+                <Button 
+                  onClick={() => {
+                    setHasTriedBootstrap(false);
+                    createAdminUser();
+                  }}
+                  className="w-full"
+                >
+                  Create Admin Role
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground mb-4">
+                  To become an admin, please sign up with: <strong>torqueup.contact@gmail.com</strong>
+                </p>
+                <Button onClick={() => window.location.href = "/login"}>
+                  Go to Login
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
