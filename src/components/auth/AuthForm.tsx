@@ -51,7 +51,6 @@ export default function AuthForm() {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
       });
     } finally {
       setLoading(false);

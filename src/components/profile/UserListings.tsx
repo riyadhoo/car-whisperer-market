@@ -48,7 +48,7 @@ export function UserListings({ listings }: UserListingsProps) {
                 
                 <CardContent className="p-4">
                   <h3 className="font-medium text-lg mb-1">{listing.title}</h3>
-                  <p className="text-2xl font-bold mb-2">${listing.price.toFixed(2)}</p>
+                  <p className="text-2xl font-bold mb-2">{listing.price.toFixed(2)} Da</p>
                   <div className="text-xs text-muted-foreground">
                     Listed on {new Date(listing.created_at).toLocaleDateString()}
                   </div>

@@ -72,7 +72,7 @@ export function PartDetailHeader({ part, averageRating, ratingsCount }: PartDeta
             </span>
           </div>
           
-          <div className="text-xl sm:text-2xl font-bold">${part?.price?.toFixed(2)}</div>
+          <div className="text-xl sm:text-2xl font-bold">{part?.price?.toFixed(2)} Da</div>
           
           {part?.condition && <Badge className="text-xs sm:text-sm">{part.condition}</Badge>}
           
